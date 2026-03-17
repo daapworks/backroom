@@ -58,11 +58,11 @@
 
     /* Target appears later */
     #targetWrap {
-      position: absolute;
+      position: fixed;
       left: 50%;
-      top: 2600px;
+      top: 50%;
       /* the point in the world where it appears */
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       display: grid;
       place-items: center;
       gap: 12px;
@@ -181,11 +181,12 @@
       </div>
 
       <!-- Target section -->
-      <div id="targetWrap">
-        <img id="target" src="assets/img/images.png" alt="target" />
-        <div class="hint">Press <b>Space</b> to fire lasers</div>
-      </div>
+      
     </div>
+  </div>
+  <div id="targetWrap">
+    <img id="target" src="assets/img/images.png" alt="target" />
+    <div class="hint">Press <b>Space</b> to fire lasers</div>
   </div>
 
   <!-- Head overlay -->
@@ -230,6 +231,12 @@
     let cursorY = window.innerHeight / 2;
     let headX = window.innerWidth / 2;
     let headY = window.innerHeight / 2;
+
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+
+    let targetVX = 2;  // horizontal speed
+    let targetVY = 1.5; // vertical speed
 
     // // If head is "pinned" at stop point
     // let headPinned = false;
@@ -321,6 +328,39 @@
       //head.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
 
       // status.textContent = `scrollY=${Math.round(scrollY)}  pinned=${headPinned}  popup=${popup.classList.contains("show")}`;
+
+
+      if (targetWrap.classList.contains("show")) {
+        const rect = targetWrap.getBoundingClientRect();
+        const halfW = rect.width / 2;
+        const halfH = rect.height / 2;
+
+        // Move
+        targetX += targetVX;
+        targetY += targetVY;
+
+        // Bounce off walls
+        if (targetX < halfW || targetX > window.innerWidth - halfW) {
+          targetVX *= -1;
+        }
+
+        if (targetY < halfH || targetY > window.innerHeight - halfH) {
+          targetVY *= -1;
+        }
+
+        // Add slight randomness (drift)
+        targetVX += (Math.random() - 0.5) * 0.1;
+        targetVY += (Math.random() - 0.5) * 0.1;
+
+        // Clamp speed so it doesn't go crazy
+        const MAX = 3;
+        targetVX = Math.max(-MAX, Math.min(MAX, targetVX));
+        targetVY = Math.max(-MAX, Math.min(MAX, targetVY));
+
+        // Apply position
+        targetWrap.style.left = `${targetX}px`;
+        targetWrap.style.top = `${targetY}px`;
+      }
 
       requestAnimationFrame(tick);
     }
