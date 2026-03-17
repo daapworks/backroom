@@ -171,8 +171,8 @@
 
       <!-- Some filler content to sell the scroll -->
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
-        <div style="font-size:44px; letter-spacing:0.5px;">AUTO-SCROLLING SCENE</div>
-        <div style="margin-top:8px; font-size:14px; opacity:.7;">Use the arrow keys ↑ to move Putin
+        <div style="font-size:44px; letter-spacing:0.5px;">Use the arrow keys ↑ to move Putin</div>
+        <div style="margin-top:8px; font-size:14px; opacity:.7;">
         </div>
       </div>
 
@@ -181,11 +181,12 @@
       </div>
 
       <!-- Target section -->
-      
+
     </div>
   </div>
   <div id="targetWrap">
     <img id="target" src="assets/img/images.png" alt="target" />
+    <div class="hint">Use <b>Mouse</b> to aim</div>
     <div class="hint">Press <b>Space</b> to fire lasers</div>
   </div>
 
@@ -224,7 +225,8 @@
 
     // ------- State -------
     let scrollY = 0;
-    let autoScrolling = true;
+    let autoScrolling = false;
+    let scrollStarted = false;
 
     // Cursor-follow (smoothed)
     let cursorX = window.innerWidth / 2;
@@ -257,6 +259,26 @@
       ArrowLeft: false,
       ArrowRight: false
     };
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code in keys) {
+        keys[e.code] = true;
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code in keys) {
+        keys[e.code] = true;
+        e.preventDefault();
+
+        // Start scrolling on first arrow key press
+        if (!scrollStarted) {
+          autoScrolling = true;
+          scrollStarted = true;
+        }
+      }
+    });
 
     window.addEventListener("keydown", (e) => {
       if (e.code in keys) {
@@ -416,39 +438,40 @@
 
       const headRect = head.getBoundingClientRect();
 
-      const eyeY = headRect.top + headRect.height * 0.42;
-      const eyeLX = headRect.left + headRect.width * 0.36;
-      const eyeRX = headRect.left + headRect.width * 0.64;
+      const eyeY = headRect.top + headRect.height * 0.54;
+      const eyeLX = headRect.left + headRect.width * 0.37;
+      const eyeRX = headRect.left + headRect.width * 0.63;
 
-      // Aim at the mouse
       const targetX = cursorX;
       const targetY = cursorY;
 
-      // Actual target for hit detection
       const targetRect = target.getBoundingClientRect();
 
-      animateLaser(laserL, eyeLX, eyeY, targetX + headRect.width * 0.36, targetY);
-      animateLaser(laserR, eyeRX, eyeY, targetX + headRect.width * 0.64, targetY);
+      const hitL = animateLaser(laserL, eyeLX, eyeY, targetX + headRect.width * 0.37, targetY, targetRect);
+      const hitR = animateLaser(laserR, eyeRX, eyeY, targetX + headRect.width * 0.63, targetY, targetRect);
 
-      const hit =
-        pointInRect(targetX, targetY, targetRect) ||
-        segmentIntersectsRect(eyeLX, eyeY, targetX, targetY, targetRect) ||
-        segmentIntersectsRect(eyeRX, eyeY, targetX, targetY, targetRect);
-
-      if (hit) {
+      if (hitL || hitR) {
         setTimeout(() => {
           popup.classList.add("show");
-        }, 220); // delay a bit so it appears after beam reaches target
+        }, 220);
       }
     }
 
-    function animateLaser(el, x1, y1, x2, y2) {
+
+
+    function animateLaser(el, x1, y1, x2, y2, targetRect) {
       const dx = x2 - x1;
       const dy = y2 - y1;
       const fullLen = Math.hypot(dx, dy);
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
-      const duration = 220; // ms
+      // Check for intersection
+      const tHit = rayRectIntersection(x1, y1, x2, y2, targetRect);
+
+      // If hit, shorten the beam
+      const finalLen = tHit !== null ? fullLen * tHit : fullLen;
+
+      const duration = 220;
       const start = performance.now();
 
       el.style.left = `${x1}px`;
@@ -459,16 +482,13 @@
 
       function frame(now) {
         const t = Math.min((now - start) / duration, 1);
-
-        // ease-out so it starts fast and finishes nicely
         const eased = 1 - Math.pow(1 - t, 3);
 
-        el.style.width = `${fullLen * eased}px`;
+        el.style.width = `${finalLen * eased}px`;
 
         if (t < 1) {
           requestAnimationFrame(frame);
         } else {
-          // hold briefly, then disappear
           setTimeout(() => {
             el.classList.remove("on");
             el.style.width = `0px`;
@@ -477,6 +497,8 @@
       }
 
       requestAnimationFrame(frame);
+
+      return tHit !== null;
     }
 
     function drawLaser(el, x1, y1, x2, y2) {
@@ -536,6 +558,39 @@
         fireLasers();
       }
     });
+
+    function rayRectIntersection(x1, y1, x2, y2, rect) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+
+      let tMin = Infinity;
+
+      // Check intersection with each side of the rectangle
+      const sides = [
+        // top
+        [rect.left, rect.top, rect.right, rect.top],
+        // right
+        [rect.right, rect.top, rect.right, rect.bottom],
+        // bottom
+        [rect.right, rect.bottom, rect.left, rect.bottom],
+        // left
+        [rect.left, rect.bottom, rect.left, rect.top],
+      ];
+
+      for (const [x3, y3, x4, y4] of sides) {
+        const denom = (dx * (y4 - y3) - dy * (x4 - x3));
+        if (denom === 0) continue;
+
+        const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / denom;
+        const u = ((x3 - x1) * dy - (y3 - y1) * dx) / denom;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+          tMin = Math.min(tMin, t);
+        }
+      }
+
+      return tMin < Infinity ? tMin : null;
+    }
 
     // Optional: click to resume scrolling (debug / alternate flow)
     // window.addEventListener("dblclick", () => { autoScrolling = true; headPinned = false; });
