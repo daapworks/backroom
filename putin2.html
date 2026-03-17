@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Head Lasers Scroll Scene</title>
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       margin: 0;
-      overflow: hidden; /* we "fake scroll" inside a container */
+      overflow: hidden;
+      /* we "fake scroll" inside a container */
       background: #0b0b0f;
       color: white;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -18,11 +21,14 @@
     #scroll {
       position: fixed;
       inset: 0;
-      overflow: hidden; /* no native scrolling */
+      overflow: hidden;
+      /* no native scrolling */
     }
+
     #world {
       position: relative;
-      height: 4000px; /* make it "scrollable" */
+      height: 4000px;
+      /* make it "scrollable" */
       width: 100%;
     }
 
@@ -31,9 +37,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,.12), transparent 35%),
-        radial-gradient(circle at 60% 70%, rgba(255,255,255,.10), transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,.08), transparent 35%);
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .12), transparent 35%),
+        radial-gradient(circle at 60% 70%, rgba(255, 255, 255, .10), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, .08), transparent 35%);
       filter: blur(0.2px);
       opacity: 0.8;
       pointer-events: none;
@@ -42,22 +48,20 @@
     /* Head follows cursor (overlay, not part of scrolling world) */
     #head {
       position: fixed;
-      left: 50%;
-      top: 50%;
       width: 220px;
       height: auto;
-      transform: translate(-50%, -50%);
       user-select: none;
       pointer-events: none;
       will-change: transform;
-      filter: drop-shadow(0 14px 30px rgba(0,0,0,0.55));
+      filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.55));
     }
 
     /* Target appears later */
     #targetWrap {
       position: absolute;
       left: 50%;
-      top: 2600px; /* the point in the world where it appears */
+      top: 2600px;
+      /* the point in the world where it appears */
       transform: translateX(-50%);
       display: grid;
       place-items: center;
@@ -65,14 +69,17 @@
       opacity: 0;
       transition: opacity 400ms ease;
     }
+
     #targetWrap.show {
       opacity: 1;
     }
+
     #target {
       width: 240px;
       height: auto;
-      filter: drop-shadow(0 12px 30px rgba(0,0,0,0.6));
+      filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.6));
     }
+
     .hint {
       font-size: 14px;
       opacity: 0.8;
@@ -82,15 +89,18 @@
     .laser {
       position: fixed;
       height: 4px;
-      background: linear-gradient(90deg, rgba(255,0,70,0), rgba(255,0,70,1), rgba(255,0,70,0));
-      box-shadow: 0 0 10px rgba(255,0,70,0.9), 0 0 22px rgba(255,0,70,0.55);
+      background: linear-gradient(90deg, rgba(255, 0, 70, 0), rgba(255, 0, 70, 1), rgba(255, 0, 70, 0));
+      box-shadow: 0 0 10px rgba(255, 0, 70, 0.9), 0 0 22px rgba(255, 0, 70, 0.55);
       transform-origin: 0 50%;
       pointer-events: none;
       z-index: 50;
       opacity: 0;
       transition: opacity 80ms linear;
     }
-    .laser.on { opacity: 1; }
+
+    .laser.on {
+      opacity: 1;
+    }
 
     /* Popup */
     #popup {
@@ -99,33 +109,47 @@
       top: 50%;
       transform: translate(-50%, -50%) scale(0.95);
       background: rgba(20, 20, 28, 0.92);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 18px;
       padding: 18px 18px;
       width: min(520px, calc(100vw - 40px));
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       opacity: 0;
       pointer-events: none;
       transition: opacity 220ms ease, transform 220ms ease;
       z-index: 100;
     }
+
     #popup.show {
       opacity: 1;
       transform: translate(-50%, -50%) scale(1);
       pointer-events: auto;
     }
-    #popup h3 { margin: 0 0 6px; font-size: 18px; }
-    #popup p { margin: 0; opacity: 0.85; line-height: 1.35; }
+
+    #popup h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    #popup p {
+      margin: 0;
+      opacity: 0.85;
+      line-height: 1.35;
+    }
+
     #popup button {
       margin-top: 12px;
       border: 0;
       border-radius: 12px;
       padding: 10px 12px;
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
       color: white;
       cursor: pointer;
     }
-    #popup button:hover { background: rgba(255,255,255,0.18); }
+
+    #popup button:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
 
     /* Small debug line */
     #status {
@@ -139,6 +163,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="scroll">
     <div id="world">
@@ -147,7 +172,8 @@
       <!-- Some filler content to sell the scroll -->
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
         <div style="font-size:44px; letter-spacing:0.5px;">AUTO-SCROLLING SCENE</div>
-        <div style="margin-top:8px; font-size:14px; opacity:.7;">Move your mouse. The head follows. It will stop later.</div>
+        <div style="margin-top:8px; font-size:14px; opacity:.7;">Use the arrow keys ↑ to move Putin
+        </div>
       </div>
 
       <div style="position:absolute; left:50%; top:1200px; transform:translateX(-50%); opacity:.55;">
@@ -156,7 +182,7 @@
 
       <!-- Target section -->
       <div id="targetWrap">
-        <img id="target" src="target.png" alt="target" />
+        <img id="target" src="assets/img/images.png" alt="target" />
         <div class="hint">Press <b>Space</b> to fire lasers</div>
       </div>
     </div>
@@ -172,7 +198,7 @@
   <!-- Popup -->
   <div id="popup" role="dialog" aria-modal="true">
     <h3>Hit confirmed ✅</h3>
-    <p>The laser collided with the target image. Put your navigation / reveal / CTA here.</p>
+    <p>Putin text yadadadadadad</p>
     <button id="closePopup">Close</button>
   </div>
 
@@ -182,7 +208,7 @@
     // ------- Scene settings -------
     const STOP_AT_SCROLL_Y = 2400;    // when auto scroll reaches here, it "stops"
     const TARGET_REVEAL_Y = 2200;     // when to show target (around the stop)
-    const AUTO_SCROLL_SPEED = 15;   // px per frame-ish (tweak)
+    const AUTO_SCROLL_SPEED = 5;   // px per frame-ish (tweak)
 
     // ------- Elements -------
     const world = document.getElementById("world");
@@ -202,20 +228,40 @@
     // Cursor-follow (smoothed)
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight / 2;
-    let headX = cursorX;
-    let headY = cursorY;
+    let headX = window.innerWidth / 2;
+    let headY = window.innerHeight / 2;
 
-    // If head is "pinned" at stop point
-    let headPinned = false;
-    let pinnedX = window.innerWidth / 2;
-    let pinnedY = window.innerHeight / 2;
+    // // If head is "pinned" at stop point
+    // let headPinned = false;
+    // let pinnedX = window.innerWidth / 2;
+    // let pinnedY = window.innerHeight / 2;
 
     // Utility
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
     window.addEventListener("pointermove", (e) => {
-      cursorX = e.clientX - 200;
-      cursorY = e.clientY - 200;
+      cursorX = e.clientX;
+      cursorY = e.clientY;
+    });
+
+    const keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+      ArrowRight: false
+    };
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code in keys) {
+        keys[e.code] = true;
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.code in keys) {
+        keys[e.code] = false;
+      }
     });
 
     // Close popup
@@ -223,6 +269,9 @@
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") popup.classList.remove("show");
     });
+
+    let velX = 0;
+    let velY = 0;
 
     // ------- Main animation loop -------
     function tick() {
@@ -232,11 +281,6 @@
         if (scrollY >= STOP_AT_SCROLL_Y) {
           scrollY = STOP_AT_SCROLL_Y;
           autoScrolling = false;
-
-          // Pin the head wherever it currently is
-          headPinned = true;
-          pinnedX = headX;
-          pinnedY = headY;
         }
       }
 
@@ -246,67 +290,153 @@
       // Apply "fake scroll" by translating the world upward
       world.style.transform = `translateY(${-scrollY}px)`;
 
-      // Update head position (follow cursor unless pinned)
-      const targetHX = headPinned ? pinnedX : cursorX;
-      const targetHY = headPinned ? pinnedY : cursorY;
+      const ACCEL = 4.8;
+      const FRICTION = 0.85;
+      const MAX_SPEED = 8;
 
-      // smoothing (lerp)
-      headX += (targetHX - headX) * 0.18;
-      headY += (targetHY - headY) * 0.18;
+      if (keys.ArrowLeft) velX -= ACCEL;
+      if (keys.ArrowRight) velX += ACCEL;
+      if (keys.ArrowUp) velY -= ACCEL;
+      if (keys.ArrowDown) velY += ACCEL;
 
-      // keep head on screen a bit
-      const pad = 80;
-      const clampedX = clamp(headX, pad, window.innerWidth - pad);
-      const clampedY = clamp(headY, pad, window.innerHeight - pad);
+      // friction
+      velX *= FRICTION;
+      velY *= FRICTION;
+
+      // clamp speed
+      velX = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velX));
+      velY = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velY));
+
+      headX += velX;
+      headY += velY;
+
+      // keep head on screen a bit, change pad to half the width of the head
+      const headRect = head.getBoundingClientRect();
+      const padX = headRect.width / 2;
+      const padY = headRect.height / 2;
+      const clampedX = clamp(headX, padX, window.innerWidth - padX);
+      const clampedY = clamp(headY, padY, window.innerHeight - padY);
 
       head.style.transform = `translate(${clampedX - 110}px, ${clampedY - 110}px)`; // 110 ~ half of 220
+      //head.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
 
-      status.textContent = `scrollY=${Math.round(scrollY)}  pinned=${headPinned}  popup=${popup.classList.contains("show")}`;
+      // status.textContent = `scrollY=${Math.round(scrollY)}  pinned=${headPinned}  popup=${popup.classList.contains("show")}`;
 
       requestAnimationFrame(tick);
     }
+
     requestAnimationFrame(tick);
 
     // ------- Lasers -------
+    // function fireLasers() {
+    //   if (!targetWrap.classList.contains("show")) return;
+
+    //   // Get head rect + approximate eye positions
+    //   const headRect = head.getBoundingClientRect();
+
+    //   // These are "good enough" defaults for a typical face PNG centered.
+    //   // Adjust eye offsets to match your specific head image.
+    //   const eyeY = headRect.top + headRect.height * 0.54;
+    //   const eyeLX = headRect.left + headRect.width * 0.37;
+    //   const eyeRX = headRect.left + headRect.width * 0.63;
+
+    //   // Get target rect (it lives inside the translated world, but boundingClientRect handles that)
+    //   // const targetRect = target.getBoundingClientRect();
+    //   // const targetCenterX = targetRect.left + targetRect.width / 2;
+    //   // const targetCenterY = targetRect.top + targetRect.height / 2;
+    //   const targetRect = target.getBoundingClientRect();
+    //   const targetCenterX = cursorX;
+    //   const targetCenterY = cursorY;
+
+    //   // Draw each laser from each eye to target center
+    //   drawLaser(laserL, eyeLX, eyeY, targetCenterX + headRect.width * 0.37, targetCenterY);
+    //   drawLaser(laserR, eyeRX, eyeY, targetCenterX + headRect.width * 0.63, targetCenterY);
+
+    //   // Show briefly
+    //   laserL.classList.add("on");
+    //   laserR.classList.add("on");
+
+    //   // Hit test: if the beam endpoint is inside target rect -> popup
+    //   const hit =
+    //     pointInRect(targetCenterX, targetCenterY, targetRect) ||
+    //     segmentIntersectsRect(eyeLX, eyeY, targetCenterX, targetCenterY, targetRect) ||
+    //     segmentIntersectsRect(eyeRX, eyeY, targetCenterX, targetCenterY, targetRect);
+
+    //   if (hit) popup.classList.add("show");
+
+    //   // Turn off after a moment
+    //   setTimeout(() => {
+    //     laserL.classList.remove("on");
+    //     laserR.classList.remove("on");
+    //   }, 5000);
+    // }
+
     function fireLasers() {
-      if (!headPinned) return;                 // only fire once stopped, per your spec
       if (!targetWrap.classList.contains("show")) return;
 
-      // Get head rect + approximate eye positions
       const headRect = head.getBoundingClientRect();
 
-      // These are "good enough" defaults for a typical face PNG centered.
-      // Adjust eye offsets to match your specific head image.
       const eyeY = headRect.top + headRect.height * 0.42;
       const eyeLX = headRect.left + headRect.width * 0.36;
       const eyeRX = headRect.left + headRect.width * 0.64;
 
-      // Get target rect (it lives inside the translated world, but boundingClientRect handles that)
+      // Aim at the mouse
+      const targetX = cursorX;
+      const targetY = cursorY;
+
+      // Actual target for hit detection
       const targetRect = target.getBoundingClientRect();
-      const targetCenterX = targetRect.left + targetRect.width / 2;
-      const targetCenterY = targetRect.top + targetRect.height / 2;
 
-      // Draw each laser from each eye to target center
-      drawLaser(laserL, eyeLX, eyeY, targetCenterX, targetCenterY);
-      drawLaser(laserR, eyeRX, eyeY, targetCenterX, targetCenterY);
+      animateLaser(laserL, eyeLX, eyeY, targetX + headRect.width * 0.36, targetY);
+      animateLaser(laserR, eyeRX, eyeY, targetX + headRect.width * 0.64, targetY);
 
-      // Show briefly
-      laserL.classList.add("on");
-      laserR.classList.add("on");
-
-      // Hit test: if the beam endpoint is inside target rect -> popup
       const hit =
-        pointInRect(targetCenterX, targetCenterY, targetRect) ||
-        segmentIntersectsRect(eyeLX, eyeY, targetCenterX, targetCenterY, targetRect) ||
-        segmentIntersectsRect(eyeRX, eyeY, targetCenterX, targetCenterY, targetRect);
+        pointInRect(targetX, targetY, targetRect) ||
+        segmentIntersectsRect(eyeLX, eyeY, targetX, targetY, targetRect) ||
+        segmentIntersectsRect(eyeRX, eyeY, targetX, targetY, targetRect);
 
-      if (hit) popup.classList.add("show");
+      if (hit) {
+        setTimeout(() => {
+          popup.classList.add("show");
+        }, 220); // delay a bit so it appears after beam reaches target
+      }
+    }
 
-      // Turn off after a moment
-      setTimeout(() => {
-        laserL.classList.remove("on");
-        laserR.classList.remove("on");
-      }, 140);
+    function animateLaser(el, x1, y1, x2, y2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const fullLen = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      const duration = 220; // ms
+      const start = performance.now();
+
+      el.style.left = `${x1}px`;
+      el.style.top = `${y1}px`;
+      el.style.width = `0px`;
+      el.style.transform = `rotate(${angle}deg)`;
+      el.classList.add("on");
+
+      function frame(now) {
+        const t = Math.min((now - start) / duration, 1);
+
+        // ease-out so it starts fast and finishes nicely
+        const eased = 1 - Math.pow(1 - t, 3);
+
+        el.style.width = `${fullLen * eased}px`;
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          // hold briefly, then disappear
+          setTimeout(() => {
+            el.classList.remove("on");
+            el.style.width = `0px`;
+          }, 120);
+        }
+      }
+
+      requestAnimationFrame(frame);
     }
 
     function drawLaser(el, x1, y1, x2, y2) {
@@ -330,31 +460,31 @@
       if (pointInRect(x1, y1, r) || pointInRect(x2, y2, r)) return true;
 
       // Rect corners
-      const A = { x: r.left,  y: r.top };
+      const A = { x: r.left, y: r.top };
       const B = { x: r.right, y: r.top };
       const C = { x: r.right, y: r.bottom };
-      const D = { x: r.left,  y: r.bottom };
+      const D = { x: r.left, y: r.bottom };
 
       return (
-        segIntersects(x1,y1,x2,y2, A.x,A.y, B.x,B.y) ||
-        segIntersects(x1,y1,x2,y2, B.x,B.y, C.x,C.y) ||
-        segIntersects(x1,y1,x2,y2, C.x,C.y, D.x,D.y) ||
-        segIntersects(x1,y1,x2,y2, D.x,D.y, A.x,A.y)
+        segIntersects(x1, y1, x2, y2, A.x, A.y, B.x, B.y) ||
+        segIntersects(x1, y1, x2, y2, B.x, B.y, C.x, C.y) ||
+        segIntersects(x1, y1, x2, y2, C.x, C.y, D.x, D.y) ||
+        segIntersects(x1, y1, x2, y2, D.x, D.y, A.x, A.y)
       );
     }
 
-    function segIntersects(x1,y1,x2,y2, x3,y3,x4,y4) {
+    function segIntersects(x1, y1, x2, y2, x3, y3, x4, y4) {
       // 2D segment intersection using orientation tests
-      const o1 = orient(x1,y1,x2,y2,x3,y3);
-      const o2 = orient(x1,y1,x2,y2,x4,y4);
-      const o3 = orient(x3,y3,x4,y4,x1,y1);
-      const o4 = orient(x3,y3,x4,y4,x2,y2);
+      const o1 = orient(x1, y1, x2, y2, x3, y3);
+      const o2 = orient(x1, y1, x2, y2, x4, y4);
+      const o3 = orient(x3, y3, x4, y4, x1, y1);
+      const o4 = orient(x3, y3, x4, y4, x2, y2);
 
       if (o1 !== o2 && o3 !== o4) return true;
       return false;
     }
 
-    function orient(ax,ay, bx,by, cx,cy) {
+    function orient(ax, ay, bx, by, cx, cy) {
       const v = (by - ay) * (cx - bx) - (bx - ax) * (cy - by);
       return v > 0 ? 1 : v < 0 ? -1 : 0;
     }
@@ -371,4 +501,5 @@
     // window.addEventListener("dblclick", () => { autoScrolling = true; headPinned = false; });
   </script>
 </body>
+
 </html>
