@@ -102,6 +102,27 @@
       opacity: 1;
     }
 
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    .spark {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: white;
+      box-shadow:
+        0 0 6px rgba(255, 255, 255, 0.95),
+        0 0 14px rgba(255, 120, 80, 0.85),
+        0 0 24px rgba(255, 60, 0, 0.65);
+      will-change: transform, opacity;
+    }
+
     /* Popup */
     #popup {
       position: fixed;
@@ -196,6 +217,7 @@
   <!-- Lasers -->
   <div id="laserL" class="laser"></div>
   <div id="laserR" class="laser"></div>
+  <div id="particles"></div>
 
   <!-- Popup -->
   <div id="popup" role="dialog" aria-modal="true">
@@ -219,6 +241,7 @@
     const target = document.getElementById("target");
     const laserL = document.getElementById("laserL");
     const laserR = document.getElementById("laserR");
+    const particles = document.getElementById("particles");
     const popup = document.getElementById("popup");
     const closePopup = document.getElementById("closePopup");
     const status = document.getElementById("status");
@@ -438,20 +461,26 @@
 
       const headRect = head.getBoundingClientRect();
 
-      const eyeY = headRect.top + headRect.height * 0.54;
-      const eyeLX = headRect.left + headRect.width * 0.37;
-      const eyeRX = headRect.left + headRect.width * 0.63;
+      const eyeY = headRect.top + headRect.height * 0.42;
+      const eyeLX = headRect.left + headRect.width * 0.36;
+      const eyeRX = headRect.left + headRect.width * 0.64;
 
-      const targetX = cursorX;
-      const targetY = cursorY;
+      const aimX = cursorX;
+      const aimY = cursorY;
 
       const targetRect = target.getBoundingClientRect();
 
-      const hitL = animateLaser(laserL, eyeLX, eyeY, targetX + headRect.width * 0.37, targetY, targetRect);
-      const hitR = animateLaser(laserR, eyeRX, eyeY, targetX + headRect.width * 0.63, targetY, targetRect);
+      animateLaser(laserL, eyeLX, eyeY, aimX, aimY, targetRect);
+      animateLaser(laserR, eyeRX, eyeY, aimX, aimY, targetRect);
 
-      if (hitL || hitR) {
+      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimX, aimY, targetRect);
+      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimX, aimY, targetRect);
+
+      if (hitPointL || hitPointR) {
+        const impact = hitPointL || hitPointR;
+
         setTimeout(() => {
+          spawnImpactSparks(impact.x, impact.y);
           popup.classList.add("show");
         }, 220);
       }
@@ -513,6 +542,52 @@
       el.style.transform = `rotate(${angle}deg)`;
     }
 
+    function spawnImpactSparks(x, y) {
+      const count = 18;
+
+      for (let i = 0; i < count; i++) {
+        const spark = document.createElement("div");
+        spark.className = "spark";
+        particles.appendChild(spark);
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 4;
+        const distance = 30 + Math.random() * 50;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+
+        const size = 3 + Math.random() * 5;
+        const duration = 250 + Math.random() * 250;
+
+        spark.style.width = `${size}px`;
+        spark.style.height = `${size}px`;
+        spark.style.left = `${x - size / 2}px`;
+        spark.style.top = `${y - size / 2}px`;
+        spark.style.opacity = "1";
+        spark.style.transform = "translate(0px, 0px) scale(1)";
+
+        spark.animate(
+          [
+            {
+              transform: "translate(0px, 0px) scale(1)",
+              opacity: 1
+            },
+            {
+              transform: `translate(${dx}px, ${dy}px) scale(0.3)`,
+              opacity: 0
+            }
+          ],
+          {
+            duration,
+            easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            fill: "forwards"
+          }
+        );
+
+        setTimeout(() => spark.remove(), duration);
+      }
+    }
+
     function pointInRect(x, y, rect) {
       return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
     }
@@ -558,6 +633,39 @@
         fireLasers();
       }
     });
+
+    function getRayRectHitPoint(x1, y1, x2, y2, rect) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+
+      let bestT = Infinity;
+      let hitPoint = null;
+
+      const sides = [
+        [rect.left, rect.top, rect.right, rect.top],
+        [rect.right, rect.top, rect.right, rect.bottom],
+        [rect.right, rect.bottom, rect.left, rect.bottom],
+        [rect.left, rect.bottom, rect.left, rect.top],
+      ];
+
+      for (const [x3, y3, x4, y4] of sides) {
+        const denom = dx * (y4 - y3) - dy * (x4 - x3);
+        if (denom === 0) continue;
+
+        const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / denom;
+        const u = ((x3 - x1) * dy - (y3 - y1) * dx) / denom;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1 && t < bestT) {
+          bestT = t;
+          hitPoint = {
+            x: x1 + dx * t,
+            y: y1 + dy * t
+          };
+        }
+      }
+
+      return hitPoint;
+    }
 
     function rayRectIntersection(x1, y1, x2, y2, rect) {
       const dx = x2 - x1;
