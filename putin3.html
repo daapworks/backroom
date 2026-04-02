@@ -194,7 +194,7 @@
 
       <!-- Some filler content to sell the scroll -->
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
-        <div style="font-size:44px; letter-spacing:0.5px;">Use the arrow keys ↑ to move Putin</div>
+        <div style="font-size:44px; letter-spacing:0.5px;">Move the mouse to control Putin</div>
         <div style="margin-top:8px; font-size:14px; opacity:.7;">
         </div>
       </div>
@@ -279,45 +279,10 @@
     window.addEventListener("pointermove", (e) => {
       cursorX = e.clientX;
       cursorY = e.clientY;
-    });
 
-    const keys = {
-      ArrowUp: false,
-      ArrowDown: false,
-      ArrowLeft: false,
-      ArrowRight: false
-    };
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code in keys) {
-        keys[e.code] = true;
-        e.preventDefault();
-      }
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code in keys) {
-        keys[e.code] = true;
-        e.preventDefault();
-
-        // Start scrolling on first arrow key press
-        if (!scrollStarted) {
-          autoScrolling = true;
-          scrollStarted = true;
-        }
-      }
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code in keys) {
-        keys[e.code] = true;
-        e.preventDefault();
-      }
-    });
-
-    window.addEventListener("keyup", (e) => {
-      if (e.code in keys) {
-        keys[e.code] = false;
+      if (!scrollStarted) {
+        autoScrolling = true;
+        scrollStarted = true;
       }
     });
 
@@ -327,10 +292,6 @@
       if (e.key === "Escape") popup.classList.remove("show");
     });
 
-    let velX = 0;
-    let velY = 0;
-
-    // ------- Main animation loop -------
     function tick(now) {
       const delta = Math.min((now - lastTime) / 1000, 0.033);
       lastTime = now;
@@ -344,37 +305,17 @@
         }
       }
 
-      // Reveal target
       if (scrollY >= TARGET_REVEAL_Y) {
         targetWrap.classList.add("show");
       }
 
-      // Fake scroll
       world.style.transform = `translateY(${-scrollY}px)`;
 
-      // Head movement (time-based)
-      const ACCEL = 1200;     // px/sec^2
-      const FRICTION = 6;     // damping per second
-      const MAX_SPEED = 500;  // px/sec
+      // Smooth mouse follow
+      const followSpeed = 8;
+      headX += (cursorX - headX) * followSpeed * delta;
+      headY += (cursorY - headY) * followSpeed * delta;
 
-      if (keys.ArrowLeft) velX -= ACCEL * delta;
-      if (keys.ArrowRight) velX += ACCEL * delta;
-      if (keys.ArrowUp) velY -= ACCEL * delta;
-      if (keys.ArrowDown) velY += ACCEL * delta;
-
-      // Time-based friction
-      velX -= velX * FRICTION * delta;
-      velY -= velY * FRICTION * delta;
-
-      // Clamp speed
-      velX = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velX));
-      velY = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velY));
-
-      // Apply movement
-      headX += velX * delta;
-      headY += velY * delta;
-
-      // Keep head on screen
       const headRect = head.getBoundingClientRect();
       const padX = headRect.width / 2;
       const padY = headRect.height / 2;
@@ -382,21 +323,18 @@
       headX = clamp(headX, padX, window.innerWidth - padX);
       headY = clamp(headY, padY, window.innerHeight - padY);
 
-      // Position head by its center
       head.style.left = `${headX - padX}px`;
       head.style.top = `${headY - padY}px`;
 
-      // Target movement (time-based)
+      // Target movement
       if (targetWrap.classList.contains("show")) {
         const rect = targetWrap.getBoundingClientRect();
         const halfW = rect.width / 2;
         const halfH = rect.height / 2;
 
-        // Move
         targetX += targetVX * delta;
         targetY += targetVY * delta;
 
-        // Bounce off walls
         if (targetX < halfW) {
           targetX = halfW;
           targetVX *= -1;
@@ -413,16 +351,13 @@
           targetVY *= -1;
         }
 
-        // Slight random drift
         targetVX += (Math.random() - 0.5) * 20 * delta;
         targetVY += (Math.random() - 0.5) * 20 * delta;
 
-        // Clamp target speed
-        const TARGET_MAX_SPEED = 180; // px/sec
+        const TARGET_MAX_SPEED = 180;
         targetVX = Math.max(-TARGET_MAX_SPEED, Math.min(TARGET_MAX_SPEED, targetVX));
         targetVY = Math.max(-TARGET_MAX_SPEED, Math.min(TARGET_MAX_SPEED, targetVY));
 
-        // Apply position
         targetWrap.style.left = `${targetX}px`;
         targetWrap.style.top = `${targetY}px`;
       }
@@ -431,50 +366,6 @@
     }
 
     requestAnimationFrame(tick);
-
-    // ------- Lasers -------
-    // function fireLasers() {
-    //   if (!targetWrap.classList.contains("show")) return;
-
-    //   // Get head rect + approximate eye positions
-    //   const headRect = head.getBoundingClientRect();
-
-    //   // These are "good enough" defaults for a typical face PNG centered.
-    //   // Adjust eye offsets to match your specific head image.
-    //   const eyeY = headRect.top + headRect.height * 0.54;
-    //   const eyeLX = headRect.left + headRect.width * 0.37;
-    //   const eyeRX = headRect.left + headRect.width * 0.63;
-
-    //   // Get target rect (it lives inside the translated world, but boundingClientRect handles that)
-    //   // const targetRect = target.getBoundingClientRect();
-    //   // const targetCenterX = targetRect.left + targetRect.width / 2;
-    //   // const targetCenterY = targetRect.top + targetRect.height / 2;
-    //   const targetRect = target.getBoundingClientRect();
-    //   const targetCenterX = cursorX;
-    //   const targetCenterY = cursorY;
-
-    //   // Draw each laser from each eye to target center
-    //   drawLaser(laserL, eyeLX, eyeY, targetCenterX + headRect.width * 0.37, targetCenterY);
-    //   drawLaser(laserR, eyeRX, eyeY, targetCenterX + headRect.width * 0.63, targetCenterY);
-
-    //   // Show briefly
-    //   laserL.classList.add("on");
-    //   laserR.classList.add("on");
-
-    //   // Hit test: if the beam endpoint is inside target rect -> popup
-    //   const hit =
-    //     pointInRect(targetCenterX, targetCenterY, targetRect) ||
-    //     segmentIntersectsRect(eyeLX, eyeY, targetCenterX, targetCenterY, targetRect) ||
-    //     segmentIntersectsRect(eyeRX, eyeY, targetCenterX, targetCenterY, targetRect);
-
-    //   if (hit) popup.classList.add("show");
-
-    //   // Turn off after a moment
-    //   setTimeout(() => {
-    //     laserL.classList.remove("on");
-    //     laserR.classList.remove("on");
-    //   }, 5000);
-    // }
 
     function fireLasers() {
       if (!targetWrap.classList.contains("show")) return;
@@ -485,16 +376,19 @@
       const eyeLX = headRect.left + headRect.width * 0.36;
       const eyeRX = headRect.left + headRect.width * 0.64;
 
-      const aimX = cursorX;
-      const aimY = cursorY;
+      // Fixed direction: straight right
+      const laserLength = window.innerWidth;
+      const aimXLeft = eyeLX + laserLength;
+      const aimXRight = eyeRX + laserLength;
+      const aimY = eyeY;
 
       const targetRect = target.getBoundingClientRect();
 
-      animateLaser(laserL, eyeLX, eyeY, aimX, aimY, targetRect);
-      animateLaser(laserR, eyeRX, eyeY, aimX, aimY, targetRect);
+      animateLaser(laserL, eyeLX, eyeY, aimXLeft, aimY, targetRect);
+      animateLaser(laserR, eyeRX, eyeY, aimXRight, aimY, targetRect);
 
-      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimX, aimY, targetRect);
-      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimX, aimY, targetRect);
+      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimXLeft, aimY, targetRect);
+      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimXRight, aimY, targetRect);
 
       if (hitPointL || hitPointR) {
         const impact = hitPointL || hitPointR;
