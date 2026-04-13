@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Head Lasers Scroll Scene</title>
+  <link rel="stylesheet" href="https://use.typekit.net/rsd6dgx.css">
   <style>
     html,
     body {
@@ -125,55 +126,6 @@
       will-change: transform, opacity;
     }
 
-    /* Popup */
-    #popup {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0.95);
-      background: rgba(20, 20, 28, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      padding: 18px 18px;
-      width: min(520px, calc(100vw - 40px));
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 220ms ease, transform 220ms ease;
-      z-index: 100;
-    }
-
-    #popup.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: auto;
-    }
-
-    #popup h3 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
-
-    #popup p {
-      margin: 0;
-      opacity: 0.85;
-      line-height: 1.35;
-    }
-
-    #popup button {
-      margin-top: 12px;
-      border: 0;
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.12);
-      color: white;
-      cursor: pointer;
-    }
-
-    #popup button:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
     /* Small debug line */
     #status {
       position: fixed;
@@ -183,6 +135,237 @@
       opacity: 0.6;
       user-select: none;
       pointer-events: none;
+    }
+
+    #hitFlash {
+      position: fixed;
+      inset: 0;
+      z-index: 110;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #hitFlash.show {
+      opacity: 1;
+    }
+
+    #hitFlashImg {
+      max-width: min(80vw, 900px);
+      max-height: 80vh;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.35));
+    }
+
+    #hitOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: black;
+    }
+
+    #hitOverlay.show {
+      opacity: 1;
+    }
+
+    #hitOverlayImg,
+    #hitOverlay::before,
+    #hitOverlay::after {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #hitOverlayImg {
+      object-fit: cover;
+      object-position: center bottom;
+      display: block;
+      transform: none;
+    }
+
+    #hitOverlay::before,
+    #hitOverlay::after {
+      content: "";
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: screen;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #hitOverlay.glitching #hitOverlayImg {
+      animation:
+        overlayFlicker 700ms steps(2, end),
+        overlayShake 700ms steps(2, end);
+    }
+
+    #hitOverlay.glitching::before {
+      background-image: var(--overlay-img);
+      transform: translate(8px, 0);
+      filter: drop-shadow(-8px 0 0 red);
+      opacity: 0.45;
+      animation: glitchSliceA 700ms steps(2, end);
+    }
+
+    /* #hitOverlay.glitching::after {
+      background-image: var(--overlay-img);
+      transform: translate(-8px, 0);
+      filter: drop-shadow(8px 0 0 cyan);
+      opacity: 0.45;
+      animation: glitchSliceB 700ms steps(2, end);
+    } */
+
+    @keyframes overlayFlicker {
+      0% {
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      12% {
+        opacity: 0.15;
+      }
+
+      18% {
+        opacity: 1;
+      }
+
+      26% {
+        opacity: 0.65;
+      }
+
+      34% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes overlayShake {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      20% {
+        transform: translate(-10px, 2px);
+      }
+
+      40% {
+        transform: translate(8px, -2px);
+      }
+
+      60% {
+        transform: translate(-6px, 1px);
+      }
+
+      80% {
+        transform: translate(4px, -1px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
+    @keyframes glitchSliceA {
+      0% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+
+      20% {
+        opacity: 0.5;
+        clip-path: inset(10% 0 70% 0);
+      }
+
+      40% {
+        opacity: 0.25;
+        clip-path: inset(45% 0 35% 0);
+      }
+
+      60% {
+        opacity: 0.45;
+        clip-path: inset(75% 0 8% 0);
+      }
+
+      100% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+    }
+
+    @keyframes glitchSliceB {
+      0% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+
+      15% {
+        opacity: 0.35;
+        clip-path: inset(5% 0 82% 0);
+      }
+
+      35% {
+        opacity: 0.45;
+        clip-path: inset(30% 0 45% 0);
+      }
+
+      65% {
+        opacity: 0.3;
+        clip-path: inset(68% 0 18% 0);
+      }
+
+      100% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+    }
+
+    #hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    #levelLabel,
+    #timer {
+      position: absolute;
+      top: 18px;
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.25),
+        0 0 20px rgba(255, 255, 255, 0.12);
+      
+      font-family: "widescreen-mixed", sans-serif;;
+    }
+
+    #levelLabel {
+      text-align: center;
+      left: 40%;
+      width: 20%;
+      margin-left: 0;
+      font-size: 24px;
+    }
+
+    #timer {
+      right: 20px;
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
     }
   </style>
 </head>
@@ -194,7 +377,7 @@
 
       <!-- Some filler content to sell the scroll -->
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
-        <div style="font-size:44px; letter-spacing:0.5px;">Move the mouse to control Putin</div>
+        <div style="font-size:44px; letter-spacing:0.5px; font-family: 'widescreen-mixed', sans-serif;">Move the mouse to control Putin</div>
         <div style="margin-top:8px; font-size:14px; opacity:.7;">
         </div>
       </div>
@@ -208,7 +391,7 @@
     </div>
   </div>
   <div id="targetWrap">
-    <img id="target" src="assets/img/AlexanderLitvinenko-Lasered 1.png" alt="target" />
+    <img id="target" src="assets/img/faces/boris-berez-BASESTATE.png" alt="target" />
   </div>
 
   <!-- Head overlay -->
@@ -220,14 +403,20 @@
   <div id="laserR" class="laser"></div>
   <div id="particles"></div>
 
-  <!-- Popup -->
-  <div id="popup" role="dialog" aria-modal="true">
-    <h3>Hit confirmed ✅</h3>
-    <p>Putin text yadadadadadad</p>
-    <button id="closePopup">Close</button>
+  <div id="hitFlash">
+    <img id="hitFlashImg" src="assets/img/HIT CONFIRMED.png" alt="Hit Confirmed">
+  </div>
+
+  <div id="hitOverlay" aria-hidden="true">
+    <img id="hitOverlayImg" src="assets/img/exposes/Boris Berezovsky.png" alt="">
   </div>
 
   <div id="status"></div>
+
+  <div id="hud">
+    <div id="levelLabel">LEVEL THREE</div>
+    <div id="timer">00:30</div>
+  </div>
 
   <script>
     // ------- Scene settings -------
@@ -243,9 +432,9 @@
     const laserL = document.getElementById("laserL");
     const laserR = document.getElementById("laserR");
     const particles = document.getElementById("particles");
-    const popup = document.getElementById("popup");
-    const closePopup = document.getElementById("closePopup");
     const status = document.getElementById("status");
+    const levelLabel = document.getElementById("levelLabel");
+    const timerEl = document.getElementById("timer");
 
     // ------- State -------
     let scrollY = 0;
@@ -274,6 +463,20 @@
     // Utility
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
+    let shotStep = 0;
+    const SHOT_ANGLES = [
+      0, 45, 90, 135, 180, 225, 270, 315
+    ];
+
+    const DEAD_TARGET_SRC = "/assets/img/lasered faces/boris-berez.png";
+    let targetDestroyed = false;
+    let hitSequenceRunning = false;
+
+    const LEVEL_DURATION = 30; // seconds
+    let timeRemaining = LEVEL_DURATION;
+    let timerStarted = false;
+    let levelEnded = false;
+
     window.addEventListener("pointermove", (e) => {
       cursorX = e.clientX;
       cursorY = e.clientY;
@@ -281,18 +484,31 @@
       if (!scrollStarted) {
         autoScrolling = true;
         scrollStarted = true;
+        timerStarted = true;
       }
     });
 
-    // Close popup
-    closePopup.addEventListener("click", () => popup.classList.remove("show"));
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") popup.classList.remove("show");
-    });
+    const hitFlash = document.getElementById("hitFlash");
+    const hitFlashImg = document.getElementById("hitFlashImg");
+    const hitOverlay = document.getElementById("hitOverlay");
+    const hitOverlayImg = document.getElementById("hitOverlayImg");
+    hitOverlay.style.setProperty("--overlay-img", `url("${hitOverlayImg.getAttribute("src")}")`);
 
     function tick(now) {
       const delta = Math.min((now - lastTime) / 1000, 0.033);
       lastTime = now;
+
+      if (timerStarted && !levelEnded) {
+        timeRemaining -= delta;
+
+        if (timeRemaining <= 0) {
+          timeRemaining = 0;
+          levelEnded = true;
+          autoScrolling = false;
+        }
+
+        timerEl.textContent = formatTime(timeRemaining);
+      }
 
       // Auto-scroll until STOP_AT_SCROLL_Y
       if (autoScrolling) {
@@ -325,7 +541,7 @@
       head.style.top = `${headY - padY}px`;
 
       // Target movement
-      if (targetWrap.classList.contains("show")) {
+      if (targetWrap.classList.contains("show") && !targetDestroyed) {
         const rect = targetWrap.getBoundingClientRect();
         const halfW = rect.width / 2;
         const halfH = rect.height / 2;
@@ -366,6 +582,10 @@
     requestAnimationFrame(tick);
 
     function fireLasers() {
+      if (levelEnded) return;
+
+      if (targetDestroyed || hitSequenceRunning) return;
+
       if (!targetWrap.classList.contains("show")) return;
 
       const headRect = head.getBoundingClientRect();
@@ -374,31 +594,87 @@
       const eyeLX = headRect.left + headRect.width * 0.36;
       const eyeRX = headRect.left + headRect.width * 0.64;
 
-      // Fixed direction: straight right
-      const laserLength = window.innerWidth;
-      const aimXLeft = eyeLX + laserLength;
-      const aimXRight = eyeRX + laserLength;
-      const aimY = eyeY;
+      const angleDeg = SHOT_ANGLES[shotStep];
+      const angleRad = angleDeg * Math.PI / 180;
+
+      // Long enough to cross the whole screen in any direction
+      const laserLength = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+
+      const dx = Math.cos(angleRad) * laserLength;
+      const dy = Math.sin(angleRad) * laserLength;
+
+      const aimXLeft = eyeLX + dx;
+      const aimYLeft = eyeY + dy;
+      const aimXRight = eyeRX + dx;
+      const aimYRight = eyeY + dy;
 
       const targetRect = target.getBoundingClientRect();
 
-      animateLaser(laserL, eyeLX, eyeY, aimXLeft, aimY, targetRect);
-      animateLaser(laserR, eyeRX, eyeY, aimXRight, aimY, targetRect);
+      animateLaser(laserL, eyeLX, eyeY, aimXLeft, aimYLeft, targetRect);
+      animateLaser(laserR, eyeRX, eyeY, aimXRight, aimYRight, targetRect);
 
-      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimXLeft, aimY, targetRect);
-      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimXRight, aimY, targetRect);
+      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimXLeft, aimYLeft, targetRect);
+      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimXRight, aimYRight, targetRect);
 
       if (hitPointL || hitPointR) {
         const impact = hitPointL || hitPointR;
 
         setTimeout(() => {
-          spawnImpactSparks(impact.x, impact.y);
-          popup.classList.add("show");
+          runHitSequence(impact.x, impact.y);
         }, 220);
       }
+
+      shotStep = (shotStep + 1) % SHOT_ANGLES.length;
     }
 
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
+    async function runHitSequence(impactX, impactY) {
+      if (hitSequenceRunning) return;
+      hitSequenceRunning = true;
+      targetDestroyed = true;
+      levelEnded = true;
+
+      // sparks at impact
+      spawnImpactSparks(impactX, impactY);
+
+      // swap target to dead image
+      target.src = DEAD_TARGET_SRC;
+
+      // blink hit-confirmed image 3 times
+      for (let i = 0; i < 3; i++) {
+        hitFlash.classList.add("show");
+        await wait(140);
+        hitFlash.classList.remove("show");
+        await wait(110);
+      }
+
+      // show final overlay with glitch
+      hitOverlay.classList.add("show");
+      hitOverlay.classList.remove("glitching");
+      void hitOverlay.offsetWidth;
+      hitOverlay.classList.add("glitching");
+    }
+
+    function showHitOverlay() {
+      hitOverlay.classList.add("show");
+      hitOverlay.classList.remove("glitching");
+
+      // force reflow so the animation can restart every hit
+      void hitOverlay.offsetWidth;
+
+      hitOverlay.classList.add("glitching");
+    }
+
+    function formatTime(seconds) {
+      const clamped = Math.max(0, seconds);
+      const mins = Math.floor(clamped / 60);
+      const secs = Math.floor(clamped % 60);
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    timerEl.textContent = formatTime(timeRemaining);
 
     function animateLaser(el, x1, y1, x2, y2, targetRect) {
       const dx = x2 - x1;
