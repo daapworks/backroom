@@ -884,12 +884,13 @@
       if (targetDestroyed || hitSequenceRunning) return;
 
       const headRect = head.getBoundingClientRect();
-      const eyeY = headRect.top + headRect.height * 0.39;
+      const eyeLY = headRect.top + headRect.height * 0.39;
+      const eyeRY = headRect.top + headRect.height * 0.37;
       const eyeLX = headRect.left + headRect.width * 0.34;
       const eyeRX = headRect.left + headRect.width * 0.66;
 
-      showEyeFlash(flashL, eyeLX, eyeY);
-      showEyeFlash(flashR, eyeRX, eyeY);
+      showEyeFlash(flashL, eyeLX, eyeLY);
+      showEyeFlash(flashR, eyeRX, eyeRY);
 
       const angleDeg = SHOT_ANGLES[shotStep];
       const angleRad = angleDeg * Math.PI / 180;
@@ -899,17 +900,17 @@
       const dy = -Math.sin(angleRad) * laserLength;
 
       const aimXLeft = eyeLX + dx;
-      const aimYLeft = eyeY + dy;
+      const aimYLeft = eyeLY + dy;
       const aimXRight = eyeRX + dx;
-      const aimYRight = eyeY + dy;
+      const aimYRight = eyeRY + dy;
 
       const targetRect = target.getBoundingClientRect();
 
-      animateLaser(laserL, eyeLX, eyeY, aimXLeft, aimYLeft, targetRect);
-      animateLaser(laserR, eyeRX, eyeY, aimXRight, aimYRight, targetRect);
+      animateLaser(laserL, eyeLX, eyeLY, aimXLeft, aimYLeft, targetRect);
+      animateLaser(laserR, eyeRX, eyeRY, aimXRight, aimYRight, targetRect);
 
-      const hitPointL = getRayRectHitPoint(eyeLX, eyeY, aimXLeft, aimYLeft, targetRect);
-      const hitPointR = getRayRectHitPoint(eyeRX, eyeY, aimXRight, aimYRight, targetRect);
+      const hitPointL = getRayRectHitPoint(eyeLX, eyeLY, aimXLeft, aimYLeft, targetRect);
+      const hitPointR = getRayRectHitPoint(eyeRX, eyeRY, aimXRight, aimYRight, targetRect);
 
       if (hitPointL || hitPointR) {
         const impact = hitPointL || hitPointR;
@@ -930,12 +931,12 @@
       const tHit = rayRectIntersection(x1, y1, x2, y2, targetRect);
       const finalLen = tHit !== null ? fullLen * tHit : fullLen;
 
-      const duration = 220;
+      const laserHeight = 8; // keep in sync with CSS
+      const pixelsPerSecond = 2200; // lower = slower, more visible travel
+      const duration = Math.max(120, (finalLen / pixelsPerSecond) * 1000);
+
       const start = performance.now();
 
-      // el.style.left = `${x1}px`;
-      // el.style.top = `${y1}px`;
-      const laserHeight = 8; // match CSS height
       el.style.left = `${x1}px`;
       el.style.top = `${y1 - laserHeight / 2}px`;
       el.style.width = `0px`;
@@ -944,9 +945,9 @@
 
       function frame(now) {
         const t = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - t, 3);
 
-        el.style.width = `${finalLen * eased}px`;
+        // linear or slight ease-out both work; linear usually feels better for a beam
+        el.style.width = `${finalLen * t}px`;
 
         if (t < 1) {
           requestAnimationFrame(frame);
@@ -954,7 +955,7 @@
           setTimeout(() => {
             el.classList.remove("on");
             el.style.width = `0px`;
-          }, 120);
+          }, 80);
         }
       }
 
