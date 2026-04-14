@@ -12,28 +12,23 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
-      /* we "fake scroll" inside a container */
       background: #0b0b0f;
       color: white;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
-    /* A scroll container so we can control scrollTop ourselves */
     #scroll {
       position: fixed;
       inset: 0;
       overflow: hidden;
-      /* no native scrolling */
     }
 
     #world {
       position: relative;
-      height: 4000px;
-      /* make it "scrollable" */
+      height: 9500px;
       width: 100%;
     }
 
-    /* Optional: subtle moving background to sell "scrolling" */
     .stars {
       position: absolute;
       inset: 0;
@@ -46,7 +41,6 @@
       pointer-events: none;
     }
 
-    /* Head follows cursor (overlay, not part of scrolling world) */
     #head {
       position: fixed;
       left: 0;
@@ -57,20 +51,20 @@
       pointer-events: none;
       will-change: transform;
       filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.55));
+      z-index: 30;
     }
 
-    /* Target appears later */
     #targetWrap {
       position: fixed;
       left: 50%;
       top: 50%;
-      /* the point in the world where it appears */
       transform: translate(-50%, -50%);
       display: grid;
       place-items: center;
       gap: 12px;
       opacity: 0;
-      transition: opacity 400ms ease;
+      transition: opacity 300ms ease;
+      z-index: 20;
     }
 
     #targetWrap.show {
@@ -81,19 +75,22 @@
       width: 240px;
       height: auto;
       filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.6));
+      display: block;
     }
 
-    .hint {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-
-    /* Lasers are simple divs we position + rotate */
     .laser {
       position: fixed;
-      height: 4px;
-      background: linear-gradient(90deg, rgba(255, 0, 70, 0), rgba(255, 0, 70, 1), rgba(255, 0, 70, 0));
-      box-shadow: 0 0 10px rgba(255, 0, 70, 0.9), 0 0 22px rgba(255, 0, 70, 0.55);
+      height: 8px;
+      background: linear-gradient(90deg,
+          rgba(255, 255, 255, 1) 0%,
+          rgba(255, 120, 120, 0.95) 15%,
+          rgba(255, 0, 70, 0.95) 75%,
+          rgba(255, 0, 70, 0.15) 100%);
+      border-radius: 999px;
+      box-shadow:
+        0 0 8px rgba(255, 0, 70, 0.9),
+        0 0 18px rgba(255, 0, 70, 0.75),
+        0 0 30px rgba(255, 255, 255, 0.4);
       transform-origin: 0 50%;
       pointer-events: none;
       z-index: 50;
@@ -126,15 +123,37 @@
       will-change: transform, opacity;
     }
 
-    /* Small debug line */
-    #status {
+    #hud {
       position: fixed;
-      left: 12px;
-      bottom: 10px;
-      font-size: 12px;
-      opacity: 0.6;
-      user-select: none;
+      inset: 0;
       pointer-events: none;
+      z-index: 200;
+    }
+
+    #levelLabel,
+    #timer {
+      position: absolute;
+      top: 18px;
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.25),
+        0 0 20px rgba(255, 255, 255, 0.12);
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
+      font-family: "widescreen-mixed", sans-serif;
+    }
+
+    #levelLabel {
+      left: 40%;
+      width: 20%;
+      text-align: center;
+    }
+
+    #timer {
+      right: 20px;
     }
 
     #hitFlash {
@@ -171,6 +190,7 @@
 
     #hitOverlay.show {
       opacity: 1;
+      pointer-events: auto;
     }
 
     #hitOverlayImg,
@@ -192,9 +212,9 @@
     #hitOverlay::before,
     #hitOverlay::after {
       content: "";
-      background-image: inherit;
+      background-image: var(--overlay-img);
       background-size: cover;
-      background-position: center;
+      background-position: center top;
       mix-blend-mode: screen;
       opacity: 0;
       pointer-events: none;
@@ -207,20 +227,166 @@
     }
 
     #hitOverlay.glitching::before {
-      background-image: var(--overlay-img);
       transform: translate(8px, 0);
       filter: drop-shadow(-8px 0 0 red);
       opacity: 0.45;
       animation: glitchSliceA 700ms steps(2, end);
     }
 
-    /* #hitOverlay.glitching::after {
-      background-image: var(--overlay-img);
+    #hitOverlay.glitching::after {
       transform: translate(-8px, 0);
       filter: drop-shadow(8px 0 0 cyan);
-      opacity: 0.45;
+      opacity: 0;
       animation: glitchSliceB 700ms steps(2, end);
-    } */
+    }
+
+    #hitOverlay.glitch-out #hitOverlayImg {
+      animation:
+        overlayOutFlicker 500ms steps(2, end),
+        overlayOutShake 500ms steps(2, end);
+    }
+
+    #hitOverlay.glitch-out::before {
+      transform: translate(12px, 0);
+      filter: drop-shadow(-12px 0 0 red);
+      opacity: 0.45;
+      animation: glitchOutSliceA 500ms steps(2, end);
+    }
+
+    #hitOverlay.glitch-out::after {
+      transform: translate(-12px, 0);
+      filter: drop-shadow(12px 0 0 cyan);
+      opacity: 0.45;
+      animation: glitchOutSliceB 500ms steps(2, end);
+    }
+
+    @keyframes overlayOutFlicker {
+      0% {
+        opacity: 1;
+      }
+
+      20% {
+        opacity: 0.35;
+      }
+
+      35% {
+        opacity: 1;
+      }
+
+      55% {
+        opacity: 0.15;
+      }
+
+      75% {
+        opacity: 0.8;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes overlayOutShake {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      20% {
+        transform: translate(10px, -2px);
+      }
+
+      40% {
+        transform: translate(-12px, 3px);
+      }
+
+      60% {
+        transform: translate(8px, -1px);
+      }
+
+      80% {
+        transform: translate(-6px, 2px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
+    @keyframes glitchOutSliceA {
+      0% {
+        opacity: 0.4;
+        clip-path: inset(8% 0 72% 0);
+      }
+
+      30% {
+        opacity: 0.45;
+        clip-path: inset(42% 0 32% 0);
+      }
+
+      60% {
+        opacity: 0.35;
+        clip-path: inset(70% 0 10% 0);
+      }
+
+      100% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+    }
+
+    @keyframes glitchOutSliceB {
+      0% {
+        opacity: 0.35;
+        clip-path: inset(5% 0 82% 0);
+      }
+
+      30% {
+        opacity: 0.45;
+        clip-path: inset(28% 0 46% 0);
+      }
+
+      60% {
+        opacity: 0.3;
+        clip-path: inset(66% 0 16% 0);
+      }
+
+      100% {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+      }
+    }
+
+    #nextLevelBtn {
+      position: absolute;
+      right: 5%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      z-index: 130;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease, background 180ms ease;
+    }
+
+    #nextLevelBtn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #nextLevelBtn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
 
     @keyframes overlayFlicker {
       0% {
@@ -332,40 +498,29 @@
       }
     }
 
-    #hud {
+    #status {
       position: fixed;
-      inset: 0;
+      left: 12px;
+      bottom: 10px;
+      font-size: 12px;
+      opacity: 0.6;
+      user-select: none;
       pointer-events: none;
-      z-index: 200;
+      z-index: 210;
+      display: none;
     }
 
-    #levelLabel,
-    #timer {
-      position: absolute;
-      top: 18px;
-      color: white;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-shadow:
-        0 0 10px rgba(255, 255, 255, 0.25),
-        0 0 20px rgba(255, 255, 255, 0.12);
-      
-      font-family: "widescreen-mixed", sans-serif;;
-    }
-
-    #levelLabel {
-      text-align: center;
-      left: 40%;
-      width: 20%;
-      margin-left: 0;
-      font-size: 24px;
-    }
-
-    #timer {
-      right: 20px;
-      font-size: 24px;
-      font-variant-numeric: tabular-nums;
+    .eye-flash {
+      position: fixed;
+      width: 18px;
+      height: 18px;
+      margin-left: -9px;
+      margin-top: -9px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 80, 80, 0.9) 35%, rgba(255, 0, 70, 0) 70%);
+      pointer-events: none;
+      z-index: 55;
+      opacity: 0;
     }
   </style>
 </head>
@@ -375,56 +530,90 @@
     <div id="world">
       <div class="stars"></div>
 
-      <!-- Some filler content to sell the scroll -->
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
-        <div style="font-size:44px; letter-spacing:0.5px; font-family: 'widescreen-mixed', sans-serif;">Move the mouse to control Putin</div>
-        <div style="margin-top:8px; font-size:14px; opacity:.7;">
-        </div>
+        <div style="font-size:44px; letter-spacing:0.5px; font-family: 'widescreen-mixed', sans-serif;">Move the mouse
+          to control Putin</div>
       </div>
-
-      <div style="position:absolute; left:50%; top:1200px; transform:translateX(-50%); opacity:.55;">
-        <div style="font-size:22px;"></div>
-      </div>
-
-      <!-- Target section -->
-
     </div>
   </div>
+
   <div id="targetWrap">
-    <img id="target" src="assets/img/faces/Alex-lit-BASESTATE.png" alt="target" />
+    <img id="target" src="" alt="target" />
   </div>
 
-  <!-- Head overlay -->
-  <!-- <img id="head" src="assets/img/face-helmet-japanese-svgrepo-com.svg" alt="head" /> -->
   <img id="head" src="assets/img/putin-face-slab.png" alt="head" />
 
-  <!-- Lasers -->
   <div id="laserL" class="laser"></div>
   <div id="laserR" class="laser"></div>
   <div id="particles"></div>
-
-  <div id="hitFlash">
-    <img id="hitFlashImg" src="assets/img/HIT CONFIRMED.png" alt="Hit Confirmed">
-  </div>
-
-  <div id="hitOverlay" aria-hidden="true">
-    <img id="hitOverlayImg" src="assets/img/exposes/Alexander Litvinenko.png" alt="">
-  </div>
-
-  <div id="status"></div>
 
   <div id="hud">
     <div id="levelLabel">LEVEL ONE</div>
     <div id="timer">00:30</div>
   </div>
 
-  <script>
-    // ------- Scene settings -------
-    const STOP_AT_SCROLL_Y = 2400;    // when auto scroll reaches here, it "stops"
-    const TARGET_REVEAL_Y = 2200;     // when to show target (around the stop)
-    const AUTO_SCROLL_SPEED = 600;   // px per frame-ish (tweak)
+  <div id="flashL" class="eye-flash"></div>
+  <div id="flashR" class="eye-flash"></div>
 
-    // ------- Elements -------
+  <div id="hitFlash">
+    <img id="hitFlashImg" src="assets/img/HIT CONFIRMED.png" alt="Hit Confirmed">
+  </div>
+
+  <div id="hitOverlay" aria-hidden="true">
+    <img id="hitOverlayImg" src="" alt="">
+    <button id="nextLevelBtn">NEXT LEVEL</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    const LEVELS = [
+      {
+        label: "LEVEL ONE",
+        revealY: 2200,
+        targetSrc: "assets/img/faces/Alex-lit-BASESTATE.png",
+        deadSrc: "assets/img/lasered faces/alexander-editt.png",
+        overlaySrc: "assets/img/exposes/Alexander Litvinenko.png",
+        size: "240px"
+      },
+      {
+        label: "LEVEL TWO",
+        revealY: 3600,
+        targetSrc: "assets/img/faces/anna-poli-BASESTATE.png",
+        deadSrc: "assets/img/lasered faces/anna-poli-editt.png",
+        overlaySrc: "assets/img/exposes/Anna Politkovskaya.png",
+        size: "350px"
+      },
+      {
+        label: "LEVEL THREE",
+        revealY: 5000,
+        targetSrc: "assets/img/faces/boris-berez-BASESTATE.png",
+        deadSrc: "assets/img/lasered faces/boris-berez.png",
+        overlaySrc: "assets/img/exposes/Boris Berezovsky.png",
+        size: "350px"
+      },
+      {
+        label: "LEVEL FOUR",
+        revealY: 6400,
+        targetSrc: "assets/img/faces/borisnemstov-BASESTATE.png",
+        deadSrc: "assets/img/lasered faces/borisnemstov.png",
+        overlaySrc: "assets/img/exposes/Boris Nemtsov.png",
+        size: "320px"
+      },
+      {
+        label: "LEVEL FIVE",
+        revealY: 7800,
+        targetSrc: "assets/img/faces/Yevgeny-Prigozhin-BASESTATE.png",
+        deadSrc: "assets/img/lasered faces/Yevgeny-Prigozhin.png",
+        overlaySrc: "assets/img/exposes/Yevgeny Prigozhin.png",
+        size: "350px"
+      }
+    ];
+
+    const LEVEL_DURATION = 30;
+    const AUTO_SCROLL_SPEED = 600;
+    //const HIT_FLASH_SRC = "assets/img/HIT CONFIRMED.png";
+
     const world = document.getElementById("world");
     const head = document.getElementById("head");
     const targetWrap = document.getElementById("targetWrap");
@@ -432,16 +621,21 @@
     const laserL = document.getElementById("laserL");
     const laserR = document.getElementById("laserR");
     const particles = document.getElementById("particles");
-    const status = document.getElementById("status");
     const levelLabel = document.getElementById("levelLabel");
     const timerEl = document.getElementById("timer");
+    const hitFlash = document.getElementById("hitFlash");
+    const hitFlashImg = document.getElementById("hitFlashImg");
+    const hitOverlay = document.getElementById("hitOverlay");
+    const hitOverlayImg = document.getElementById("hitOverlayImg");
+    const nextLevelBtn = document.getElementById("nextLevelBtn");
+    const status = document.getElementById("status");
 
-    // ------- State -------
+    //hitFlashImg.src = HIT_FLASH_SRC;
+
     let scrollY = 0;
     let autoScrolling = false;
     let scrollStarted = false;
 
-    // Cursor-follow (smoothed)
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight / 2;
     let headX = window.innerWidth / 2;
@@ -449,33 +643,123 @@
 
     let targetX = window.innerWidth / 2;
     let targetY = window.innerHeight / 2;
-
-    let targetVX = 120;  // horizontal speed
-    let targetVY = 90; // vertical speed
+    let targetVX = 120;
+    let targetVY = 90;
 
     let lastTime = performance.now();
 
-    // // If head is "pinned" at stop point
-    // let headPinned = false;
-    // let pinnedX = window.innerWidth / 2;
-    // let pinnedY = window.innerHeight / 2;
-
-    // Utility
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-
-    let shotStep = 0;
-    const SHOT_ANGLES = [
-      0, 45, 90, 135, 180, 225, 270, 315
-    ];
-
-    const DEAD_TARGET_SRC = "/assets/img/lasered faces/alexander-editt.png";
-    let targetDestroyed = false;
-    let hitSequenceRunning = false;
-
-    const LEVEL_DURATION = 30; // seconds
+    let currentLevel = 0;
     let timeRemaining = LEVEL_DURATION;
     let timerStarted = false;
     let levelEnded = false;
+    let targetDestroyed = false;
+    let hitSequenceRunning = false;
+    let gameWon = false;
+
+    let shotStep = 0;
+    const SHOT_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function formatTime(seconds) {
+      const clamped = Math.max(0, seconds);
+      const mins = Math.floor(clamped / 60);
+      const secs = Math.floor(clamped % 60);
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function loadLevel(index) {
+      const level = LEVELS[index];
+
+      levelLabel.textContent = level.label;
+
+      // Hide target immediately while swapping assets
+      targetWrap.classList.remove("show");
+      target.style.opacity = "0";
+
+      targetDestroyed = false;
+      hitSequenceRunning = false;
+      levelEnded = false;
+
+      nextLevelBtn.classList.remove("show");
+
+      timeRemaining = LEVEL_DURATION;
+      timerEl.textContent = formatTime(timeRemaining);
+      timerEl.style.color = "white";
+      timerEl.style.opacity = "1";
+
+      targetX = window.innerWidth / 2;
+      targetY = window.innerHeight / 2;
+      targetVX = 120;
+      targetVY = 90;
+      targetWrap.style.left = `${targetX}px`;
+      targetWrap.style.top = `${targetY}px`;
+
+      // Apply target size for this level
+      target.style.width = level.size;
+
+      // Preload and swap the live target image cleanly
+      const liveImg = new Image();
+      liveImg.src = level.targetSrc;
+      await liveImg.decode().catch(() => { });
+
+      target.src = level.targetSrc;
+
+      // Update overlay image too
+      const overlayImg = new Image();
+      overlayImg.src = level.overlaySrc;
+      await overlayImg.decode().catch(() => { });
+
+      hitOverlayImg.src = level.overlaySrc;
+      hitOverlay.style.setProperty("--overlay-img", `url("${level.overlaySrc}")`);
+
+      // Make target drawable again
+      target.style.opacity = "1";
+    }
+
+    function showFinalOverlay() {
+      hitOverlay.classList.remove("glitch-out");
+      hitOverlay.classList.add("show");
+      hitOverlay.classList.remove("glitching");
+      void hitOverlay.offsetWidth;
+      hitOverlay.classList.add("glitching");
+    }
+
+    async function runHitSequence(impactX, impactY) {
+      if (hitSequenceRunning) return;
+
+      hitSequenceRunning = true;
+      targetDestroyed = true;
+      levelEnded = true;
+      autoScrolling = false;
+      timerEl.style.color = "#00ffcc";
+
+      spawnImpactSparks(impactX, impactY);
+      target.src = LEVELS[currentLevel].deadSrc;
+
+      for (let i = 0; i < 3; i++) {
+        hitFlash.classList.add("show");
+        await wait(320);
+        hitFlash.classList.remove("show");
+        await wait(180);
+      }
+
+      showFinalOverlay();
+      await wait(700);
+
+      if (currentLevel < LEVELS.length - 1) {
+        nextLevelBtn.textContent = "NEXT LEVEL";
+        nextLevelBtn.classList.add("show");
+      } else {
+        nextLevelBtn.textContent = "FINISH";
+        nextLevelBtn.classList.add("show");
+        gameWon = true;
+      }
+    }
 
     window.addEventListener("pointermove", (e) => {
       cursorX = e.clientX;
@@ -488,17 +772,26 @@
       }
     });
 
-    const hitFlash = document.getElementById("hitFlash");
-    const hitFlashImg = document.getElementById("hitFlashImg");
-    const hitOverlay = document.getElementById("hitOverlay");
-    const hitOverlayImg = document.getElementById("hitOverlayImg");
-    hitOverlay.style.setProperty("--overlay-img", `url("${hitOverlayImg.getAttribute("src")}")`);
+    nextLevelBtn.addEventListener("click", async () => {
+      if (currentLevel >= LEVELS.length - 1) {
+        await hideOverlayWithGlitch();
+        return;
+      }
+
+      await hideOverlayWithGlitch();
+
+      currentLevel += 1;
+      await loadLevel(currentLevel);
+
+      autoScrolling = true;
+      timerStarted = true;
+    });
 
     function tick(now) {
       const delta = Math.min((now - lastTime) / 1000, 0.033);
       lastTime = now;
 
-      if (timerStarted && !levelEnded) {
+      if (timerStarted && !levelEnded && !gameWon) {
         timeRemaining -= delta;
 
         if (timeRemaining <= 0) {
@@ -508,24 +801,22 @@
         }
 
         timerEl.textContent = formatTime(timeRemaining);
+        timerEl.style.color = timeRemaining <= 10 ? "#ff5c5c" : "white";
       }
 
-      // Auto-scroll until STOP_AT_SCROLL_Y
       if (autoScrolling) {
         scrollY += AUTO_SCROLL_SPEED * delta;
-        if (scrollY >= STOP_AT_SCROLL_Y) {
-          scrollY = STOP_AT_SCROLL_Y;
-          autoScrolling = false;
-        }
-      }
-
-      if (scrollY >= TARGET_REVEAL_Y) {
-        targetWrap.classList.add("show");
       }
 
       world.style.transform = `translateY(${-scrollY}px)`;
 
-      // Smooth mouse follow
+      if (!gameWon &&
+        scrollY >= LEVELS[currentLevel].revealY &&
+        !targetDestroyed &&
+        !hitSequenceRunning) {
+        targetWrap.classList.add("show");
+      }
+
       const followSpeed = 8;
       headX += (cursorX - headX) * followSpeed * delta;
       headY += (cursorY - headY) * followSpeed * delta;
@@ -540,8 +831,7 @@
       head.style.left = `${headX - padX}px`;
       head.style.top = `${headY - padY}px`;
 
-      // Target movement
-      if (targetWrap.classList.contains("show") && !targetDestroyed) {
+      if (targetWrap.classList.contains("show") && !targetDestroyed && !hitSequenceRunning) {
         const rect = targetWrap.getBoundingClientRect();
         const halfW = rect.width / 2;
         const halfH = rect.height / 2;
@@ -579,29 +869,34 @@
       requestAnimationFrame(tick);
     }
 
-    requestAnimationFrame(tick);
+    function showEyeFlash(el, x, y) {
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.opacity = "1";
+      setTimeout(() => {
+        el.style.opacity = "0";
+      }, 120);
+    }
 
     function fireLasers() {
       if (levelEnded) return;
-
+      if (!targetWrap.classList.contains("show")) return;
       if (targetDestroyed || hitSequenceRunning) return;
 
-      if (!targetWrap.classList.contains("show")) return;
-
       const headRect = head.getBoundingClientRect();
+      const eyeY = headRect.top + headRect.height * 0.39;
+      const eyeLX = headRect.left + headRect.width * 0.34;
+      const eyeRX = headRect.left + headRect.width * 0.66;
 
-      const eyeY = headRect.top + headRect.height * 0.42;
-      const eyeLX = headRect.left + headRect.width * 0.36;
-      const eyeRX = headRect.left + headRect.width * 0.64;
+      showEyeFlash(flashL, eyeLX, eyeY);
+      showEyeFlash(flashR, eyeRX, eyeY);
 
       const angleDeg = SHOT_ANGLES[shotStep];
       const angleRad = angleDeg * Math.PI / 180;
-
-      // Long enough to cross the whole screen in any direction
       const laserLength = Math.max(window.innerWidth, window.innerHeight) * 1.5;
 
       const dx = Math.cos(angleRad) * laserLength;
-      const dy = Math.sin(angleRad) * laserLength;
+      const dy = -Math.sin(angleRad) * laserLength;
 
       const aimXLeft = eyeLX + dx;
       const aimYLeft = eyeY + dy;
@@ -618,7 +913,6 @@
 
       if (hitPointL || hitPointR) {
         const impact = hitPointL || hitPointR;
-
         setTimeout(() => {
           runHitSequence(impact.x, impact.y);
         }, 220);
@@ -627,72 +921,23 @@
       shotStep = (shotStep + 1) % SHOT_ANGLES.length;
     }
 
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function runHitSequence(impactX, impactY) {
-      if (hitSequenceRunning) return;
-      hitSequenceRunning = true;
-      targetDestroyed = true;
-      levelEnded = true;
-
-      // sparks at impact
-      spawnImpactSparks(impactX, impactY);
-
-      // swap target to dead image
-      target.src = DEAD_TARGET_SRC;
-
-      // blink hit-confirmed image 3 times
-      for (let i = 0; i < 3; i++) {
-        hitFlash.classList.add("show");
-        await wait(140);
-        hitFlash.classList.remove("show");
-        await wait(110);
-      }
-
-      // show final overlay with glitch
-      hitOverlay.classList.add("show");
-      hitOverlay.classList.remove("glitching");
-      void hitOverlay.offsetWidth;
-      hitOverlay.classList.add("glitching");
-    }
-
-    function showHitOverlay() {
-      hitOverlay.classList.add("show");
-      hitOverlay.classList.remove("glitching");
-
-      // force reflow so the animation can restart every hit
-      void hitOverlay.offsetWidth;
-
-      hitOverlay.classList.add("glitching");
-    }
-
-    function formatTime(seconds) {
-      const clamped = Math.max(0, seconds);
-      const mins = Math.floor(clamped / 60);
-      const secs = Math.floor(clamped % 60);
-      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-    timerEl.textContent = formatTime(timeRemaining);
-
     function animateLaser(el, x1, y1, x2, y2, targetRect) {
       const dx = x2 - x1;
       const dy = y2 - y1;
       const fullLen = Math.hypot(dx, dy);
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
-      // Check for intersection
       const tHit = rayRectIntersection(x1, y1, x2, y2, targetRect);
-
-      // If hit, shorten the beam
       const finalLen = tHit !== null ? fullLen * tHit : fullLen;
 
       const duration = 220;
       const start = performance.now();
 
+      // el.style.left = `${x1}px`;
+      // el.style.top = `${y1}px`;
+      const laserHeight = 8; // match CSS height
       el.style.left = `${x1}px`;
-      el.style.top = `${y1}px`;
+      el.style.top = `${y1 - laserHeight / 2}px`;
       el.style.width = `0px`;
       el.style.transform = `rotate(${angle}deg)`;
       el.classList.add("on");
@@ -714,20 +959,7 @@
       }
 
       requestAnimationFrame(frame);
-
       return tHit !== null;
-    }
-
-    function drawLaser(el, x1, y1, x2, y2) {
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const len = Math.hypot(dx, dy);
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-      el.style.left = `${x1}px`;
-      el.style.top = `${y1}px`;
-      el.style.width = `${len}px`;
-      el.style.transform = `rotate(${angle}deg)`;
     }
 
     function spawnImpactSparks(x, y) {
@@ -739,11 +971,9 @@
         particles.appendChild(spark);
 
         const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 4;
         const distance = 30 + Math.random() * 50;
         const dx = Math.cos(angle) * distance;
         const dy = Math.sin(angle) * distance;
-
         const size = 3 + Math.random() * 5;
         const duration = 250 + Math.random() * 250;
 
@@ -756,14 +986,8 @@
 
         spark.animate(
           [
-            {
-              transform: "translate(0px, 0px) scale(1)",
-              opacity: 1
-            },
-            {
-              transform: `translate(${dx}px, ${dy}px) scale(0.3)`,
-              opacity: 0
-            }
+            { transform: "translate(0px, 0px) scale(1)", opacity: 1 },
+            { transform: `translate(${dx}px, ${dy}px) scale(0.3)`, opacity: 0 }
           ],
           {
             duration,
@@ -775,52 +999,6 @@
         setTimeout(() => spark.remove(), duration);
       }
     }
-
-    function pointInRect(x, y, rect) {
-      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    }
-
-    // Simple segment-rectangle intersection: check if segment crosses any rect edge or starts/ends inside.
-    function segmentIntersectsRect(x1, y1, x2, y2, r) {
-      if (pointInRect(x1, y1, r) || pointInRect(x2, y2, r)) return true;
-
-      // Rect corners
-      const A = { x: r.left, y: r.top };
-      const B = { x: r.right, y: r.top };
-      const C = { x: r.right, y: r.bottom };
-      const D = { x: r.left, y: r.bottom };
-
-      return (
-        segIntersects(x1, y1, x2, y2, A.x, A.y, B.x, B.y) ||
-        segIntersects(x1, y1, x2, y2, B.x, B.y, C.x, C.y) ||
-        segIntersects(x1, y1, x2, y2, C.x, C.y, D.x, D.y) ||
-        segIntersects(x1, y1, x2, y2, D.x, D.y, A.x, A.y)
-      );
-    }
-
-    function segIntersects(x1, y1, x2, y2, x3, y3, x4, y4) {
-      // 2D segment intersection using orientation tests
-      const o1 = orient(x1, y1, x2, y2, x3, y3);
-      const o2 = orient(x1, y1, x2, y2, x4, y4);
-      const o3 = orient(x3, y3, x4, y4, x1, y1);
-      const o4 = orient(x3, y3, x4, y4, x2, y2);
-
-      if (o1 !== o2 && o3 !== o4) return true;
-      return false;
-    }
-
-    function orient(ax, ay, bx, by, cx, cy) {
-      const v = (by - ay) * (cx - bx) - (bx - ax) * (cy - by);
-      return v > 0 ? 1 : v < 0 ? -1 : 0;
-    }
-
-    // Spacebar to fire
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space") {
-        e.preventDefault();
-        fireLasers();
-      }
-    });
 
     function getRayRectHitPoint(x1, y1, x2, y2, rect) {
       const dx = x2 - x1;
@@ -858,23 +1036,17 @@
     function rayRectIntersection(x1, y1, x2, y2, rect) {
       const dx = x2 - x1;
       const dy = y2 - y1;
-
       let tMin = Infinity;
 
-      // Check intersection with each side of the rectangle
       const sides = [
-        // top
         [rect.left, rect.top, rect.right, rect.top],
-        // right
         [rect.right, rect.top, rect.right, rect.bottom],
-        // bottom
         [rect.right, rect.bottom, rect.left, rect.bottom],
-        // left
         [rect.left, rect.bottom, rect.left, rect.top],
       ];
 
       for (const [x3, y3, x4, y4] of sides) {
-        const denom = (dx * (y4 - y3) - dy * (x4 - x3));
+        const denom = dx * (y4 - y3) - dy * (x4 - x3);
         if (denom === 0) continue;
 
         const t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / denom;
@@ -888,8 +1060,26 @@
       return tMin < Infinity ? tMin : null;
     }
 
-    // Optional: click to resume scrolling (debug / alternate flow)
-    // window.addEventListener("dblclick", () => { autoScrolling = true; headPinned = false; });
+    async function hideOverlayWithGlitch() {
+      hitOverlay.classList.remove("glitching");
+      hitOverlay.classList.add("glitch-out");
+      nextLevelBtn.classList.remove("show");
+
+      await wait(500);
+
+      hitOverlay.classList.remove("show", "glitch-out");
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        fireLasers();
+      }
+    });
+
+    loadLevel(currentLevel);
+    timerEl.textContent = formatTime(timeRemaining);
+    requestAnimationFrame(tick);
   </script>
 </body>
 
