@@ -56,79 +56,106 @@ body {
 
 #back{
   position:absolute;
-  left: 20%;
-  top: 40%;
-  width: 60%;
+  left: 15%;
+  top: 30%;
+  width: 70%;
   z-index: 1;
 }
 
-#file6 {
+#file9 {
   position: absolute;
-  left: 25.5%;
-  top: 35%;
-  width: 49%;
+  left: 22%;
+  top: 25%;
+  width: 56%;
   height: auto;
   z-index: 2;
 }
 
-#file5 {
+#file8 {
   position: absolute;
-  left: 25%;
-  top: 39%;
-  width: 50%;
+  left: 21.5%;
+  top: 27%;
+  width: 57%;
   height: auto;
   z-index: 3;
 }
 
-#file4 {
+#file7 {
   position: absolute;
-  left: 24.5%;
-  top: 43%;
-  width: 51%;
+  left: 21%;
+  top: 31%;
+  width: 58%;
   height: auto;
   z-index: 4;
 }
 
-#file3 {
+#file6 {
   position: absolute;
-  left: 24%;
-  top: 47%;
-  width: 52%;
+  left: 20.5%;
+  top: 35%;
+  width: 59%;
   height: auto;
   z-index: 5;
 }
 
-#file2 {
+#file5 {
   position: absolute;
-  left: 23.5%;
-  top: 51%;
-  width: 53%;
+  left: 20%;
+  top: 39%;
+  width: 60%;
   height: auto;
   z-index: 6;
 }
 
-#file1 {
+#file4 {
   position: absolute;
-  left: 23%;
-  top: 55%;
-  width: 54%;
+  left: 19.5%;
+  top: 43%;
+  width: 61%;
   height: auto;
   z-index: 7;
 }
 
+#file3 {
+  position: absolute;
+  left: 19%;
+  top: 47%;
+  width: 62%;
+  height: auto;
+  z-index: 8;
+}
+
+#file2 {
+  position: absolute;
+  left: 18.5%;
+  top: 51%;
+  width: 63%;
+  height: auto;
+  z-index: 9;
+}
+
+#file1 {
+  position: absolute;
+  left: 18%;
+  top: 55%;
+  width: 64%;
+  height: auto;
+  z-index: 10;
+}
+
 #front{
   position: absolute;
-  left: 15%;
+  left: 10%;
   top: 70%;
-  width: 70%;
-  z-index: 8;
+  width: 80%;
+  z-index: 11;
 }
 
 /* make files feel interactive */
 [id^="file"] { cursor: pointer; }
 
 /* helps GSAP transforms stay smooth */
-#file1, #file2, #file3, #file4, #file5, #file6 {
+#file1, #file2, #file3, #file4, #file5, #file6, #file7, #file8, #file9 {
   will-change: transform;
 }
 
