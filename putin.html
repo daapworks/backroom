@@ -17,6 +17,229 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      overflow: hidden;
+      background: black;
+    }
+
+    #introBase,
+    #introGlitch,
+    #introFace {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #introBase,
+    #introGlitch {
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    #introBase {
+      z-index: 1;
+      opacity: 1;
+    }
+
+    #introGlitch {
+      z-index: 4;
+      opacity: 0;
+      mix-blend-mode: normal;
+    }
+
+    #intro {
+      --face-x: -90px;
+      --face-y: -30px;
+      --face-size: 500px;
+      --face-slide-left: 200px;
+    }
+
+    #introFace {
+      z-index: 2;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--face-size);
+      height: auto;
+      object-fit: contain;
+      object-position: center center;
+      opacity: 1;
+
+      transform:
+        translate(-50%, -50%) translate(var(--face-x), var(--face-y));
+
+      transform-origin: center center;
+      transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #intro.separate #introFace {
+      transform:
+        translate(-50%, -50%) translate(calc(var(--face-x) - var(--face-slide-left)), var(--face-y));
+    }
+
+    #intro.glitching #introGlitch {
+      animation:
+        introGlitchFlash 1.5s steps(1, end),
+        introGlitchSlices 1.5s steps(2, end);
+    }
+
+    #intro.hide {
+      opacity: 0;
+      transition: opacity 400ms ease;
+      pointer-events: none;
+    }
+
+    #introGlitch::before,
+    #introGlitch::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #intro.glitching #introGlitch::before {
+      opacity: 0.5;
+      transform: translate(8px, 0);
+      filter: drop-shadow(-8px 0 0 red);
+    }
+
+    #intro.glitching #introGlitch::after {
+      opacity: 0.5;
+      transform: translate(-8px, 0);
+      filter: drop-shadow(8px 0 0 cyan);
+    }
+
+    @keyframes introGlitchFlash {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(1);
+      }
+
+      5% {
+        opacity: 1;
+        transform: translate(-30px, 8px) scale(1.02);
+      }
+
+      8% {
+        opacity: 0;
+        transform: translate(0, 0);
+      }
+
+      14% {
+        opacity: 1;
+        transform: translate(26px, -6px) scale(0.98);
+      }
+
+      18% {
+        opacity: 0;
+      }
+
+      24% {
+        opacity: 1;
+        transform: translate(-18px, 4px) scale(1.03);
+      }
+
+      30% {
+        opacity: 0;
+      }
+
+      36% {
+        opacity: 1;
+        transform: translate(32px, -10px) scale(1.01);
+      }
+
+      42% {
+        opacity: 0;
+      }
+
+      48% {
+        opacity: 1;
+        transform: translate(-24px, 6px) scale(0.99);
+      }
+
+      54% {
+        opacity: 0;
+      }
+
+      62% {
+        opacity: 1;
+        transform: translate(18px, -5px) scale(1.04);
+      }
+
+      70% {
+        opacity: 0;
+      }
+
+      78% {
+        opacity: 1;
+        transform: translate(-12px, 3px) scale(1.01);
+      }
+
+      86% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(0, 0) scale(1);
+      }
+    }
+
+    @keyframes introGlitchSlices {
+      0% {
+        clip-path: inset(0 0 100% 0);
+      }
+
+      10% {
+        clip-path: inset(5% 0 75% 0);
+      }
+
+      20% {
+        clip-path: inset(35% 0 45% 0);
+      }
+
+      30% {
+        clip-path: inset(60% 0 20% 0);
+      }
+
+      40% {
+        clip-path: inset(15% 0 70% 0);
+      }
+
+      50% {
+        clip-path: inset(45% 0 35% 0);
+      }
+
+      60% {
+        clip-path: inset(70% 0 10% 0);
+      }
+
+      70% {
+        clip-path: inset(25% 0 55% 0);
+      }
+
+      80% {
+        clip-path: inset(10% 0 80% 0);
+      }
+
+      90% {
+        clip-path: inset(50% 0 30% 0);
+      }
+
+      100% {
+        clip-path: inset(0 0 100% 0);
+      }
+    }
+
     #scroll {
       position: fixed;
       inset: 0;
@@ -52,6 +275,7 @@
       will-change: transform;
       filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.55));
       z-index: 30;
+      opacity: 0;
     }
 
     #targetWrap {
@@ -203,7 +427,7 @@
     }
 
     #hitOverlayImg {
-      object-fit: cover;
+      object-fit: contain;
       object-position: center bottom;
       display: block;
       transform: none;
@@ -213,8 +437,9 @@
     #hitOverlay::after {
       content: "";
       background-image: var(--overlay-img);
-      background-size: cover;
-      background-position: center top;
+      background-size: contain;
+      background-position: center bottom;
+      background-repeat: no-repeat;
       mix-blend-mode: screen;
       opacity: 0;
       pointer-events: none;
@@ -356,38 +581,6 @@
       }
     }
 
-    #nextLevelBtn {
-      position: absolute;
-      right: 5%;
-      bottom: 40px;
-      transform: translateX(-50%);
-      z-index: 130;
-      border: 0;
-      border-radius: 14px;
-      padding: 14px 22px;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.14);
-      color: white;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      cursor: pointer;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 220ms ease, transform 220ms ease, background 180ms ease;
-    }
-
-    #nextLevelBtn.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    #nextLevelBtn:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
-
     @keyframes overlayFlicker {
       0% {
         opacity: 0;
@@ -498,6 +691,70 @@
       }
     }
 
+    #nextLevelBtn {
+      position: absolute;
+      right: 5%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      z-index: 130;
+      border: 1px solid #01FF06;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease, background 180ms ease;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    #nextLevelBtn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #nextLevelBtn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    #overlayNoise {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg,
+          rgba(255, 255, 255, 0.02) 0px,
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 1px,
+          transparent 3px),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 70%);
+      opacity: 0.25;
+      pointer-events: none;
+      animation: noiseFlicker 120ms infinite;
+    }
+
+    @keyframes noiseFlicker {
+      0% {
+        opacity: 0.2;
+      }
+
+      50% {
+        opacity: 0.28;
+      }
+
+      100% {
+        opacity: 0.2;
+      }
+    }
+
     #status {
       position: fixed;
       left: 12px;
@@ -526,6 +783,12 @@
 </head>
 
 <body>
+  <div id="intro">
+    <img id="introBase" src="assets/img/intro/Putin-Base-6.jpg" alt="">
+    <img id="introGlitch" src="assets/img/intro/Putin-Intro-Glitch.png" alt="">
+    <img id="introFace" src="assets/img/intro/putin-face-slab.png" alt="">
+  </div>
+
   <div id="scroll">
     <div id="world">
       <div class="stars"></div>
@@ -560,9 +823,11 @@
   </div>
 
   <div id="hitOverlay" aria-hidden="true">
+    <div id="overlayNoise"></div>
     <img id="hitOverlayImg" src="" alt="">
-    <button id="nextLevelBtn">NEXT LEVEL</button>
+    <button id="nextLevelBtn">NEXT LEVEL ↓<p style="color: red;">↓</p></button>
   </div>
+
 
   <div id="status"></div>
 
@@ -615,6 +880,8 @@
     //const HIT_FLASH_SRC = "assets/img/HIT CONFIRMED.png";
 
     const world = document.getElementById("world");
+    const intro = document.getElementById("intro");
+    const introFace = document.getElementById("introFace");
     const head = document.getElementById("head");
     const targetWrap = document.getElementById("targetWrap");
     const target = document.getElementById("target");
@@ -631,6 +898,9 @@
     const status = document.getElementById("status");
 
     //hitFlashImg.src = HIT_FLASH_SRC;
+
+    let introFinished = false;
+    let gameplayEnabled = false;
 
     let scrollY = 0;
     let autoScrolling = false;
@@ -670,6 +940,39 @@
 
     function wait(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runIntroSequence() {
+      await wait(250);
+
+      // glitch the full composition
+      intro.classList.add("glitching");
+      await wait(1500);
+      intro.classList.remove("glitching");
+
+      // short clean hold
+      await wait(200);
+
+      // separate the face slab
+      intro.classList.add("separate");
+      await wait(750);
+
+      // move gameplay head to where the intro face ended up
+      const faceRect = introFace.getBoundingClientRect();
+      const headRect = head.getBoundingClientRect();
+
+      headX = faceRect.left + faceRect.width / 2;
+      headY = faceRect.top + faceRect.height / 2;
+
+      head.style.left = `${headX - headRect.width / 2}px`;
+      head.style.top = `${headY - headRect.height / 2}px`;
+      head.style.opacity = "1";
+
+      intro.classList.add("hide");
+      await wait(400);
+
+      intro.style.display = "none";
+      introFinished = true;
     }
 
     async function loadLevel(index) {
@@ -752,7 +1055,7 @@
       await wait(700);
 
       if (currentLevel < LEVELS.length - 1) {
-        nextLevelBtn.textContent = "NEXT LEVEL";
+        nextLevelBtn.textContent = "NEXT LEVEL ↓";
         nextLevelBtn.classList.add("show");
       } else {
         nextLevelBtn.textContent = "FINISH";
@@ -765,10 +1068,13 @@
       cursorX = e.clientX;
       cursorY = e.clientY;
 
+      if (!introFinished) return;
+
       if (!scrollStarted) {
         autoScrolling = true;
         scrollStarted = true;
         timerStarted = true;
+        gameplayEnabled = true;
       }
     });
 
@@ -817,9 +1123,11 @@
         targetWrap.classList.add("show");
       }
 
-      const followSpeed = 8;
-      headX += (cursorX - headX) * followSpeed * delta;
-      headY += (cursorY - headY) * followSpeed * delta;
+      if (gameplayEnabled) {
+        const followSpeed = 8;
+        headX += (cursorX - headX) * followSpeed * delta;
+        headY += (cursorY - headY) * followSpeed * delta;
+      }
 
       const headRect = head.getBoundingClientRect();
       const padX = headRect.width / 2;
@@ -1081,6 +1389,7 @@
     loadLevel(currentLevel);
     timerEl.textContent = formatTime(timeRemaining);
     requestAnimationFrame(tick);
+    runIntroSequence();
   </script>
 </body>
 
