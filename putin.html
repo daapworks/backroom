@@ -107,15 +107,15 @@
     }
 
     #intro.glitching #introGlitch::before {
-      opacity: 0.5;
-      transform: translate(8px, 0);
-      filter: drop-shadow(-8px 0 0 red);
+      opacity: 0.75;
+      transform: translate(14px, 0);
+      filter: drop-shadow(-14px 0 0 red);
     }
 
     #intro.glitching #introGlitch::after {
-      opacity: 0.5;
-      transform: translate(-8px, 0);
-      filter: drop-shadow(8px 0 0 cyan);
+      opacity: 0.75;
+      transform: translate(-14px, 0);
+      filter: drop-shadow(14px 0 0 cyan);
     }
 
     @keyframes introGlitchFlash {
@@ -124,68 +124,54 @@
         transform: translate(0, 0) scale(1);
       }
 
-      5% {
+      6% {
         opacity: 1;
-        transform: translate(-30px, 8px) scale(1.02);
+        transform: translate(-20px, 6px) scale(1.01);
       }
 
-      8% {
-        opacity: 0;
-        transform: translate(0, 0);
-      }
-
-      14% {
-        opacity: 1;
-        transform: translate(26px, -6px) scale(0.98);
-      }
-
-      18% {
-        opacity: 0;
+      16% {
+        opacity: 0.9;
+        transform: translate(12px, -4px) scale(1.02);
       }
 
       24% {
-        opacity: 1;
-        transform: translate(-18px, 4px) scale(1.03);
+        opacity: 0;
+        transform: translate(0, 0) scale(1);
       }
 
       30% {
-        opacity: 0;
-      }
-
-      36% {
         opacity: 1;
-        transform: translate(32px, -10px) scale(1.01);
+        transform: translate(18px, -8px) scale(1.01);
       }
 
       42% {
-        opacity: 0;
+        opacity: 0.95;
+        transform: translate(-10px, 3px) scale(1.03);
       }
 
-      48% {
+      50% {
+        opacity: 0;
+        transform: translate(0, 0) scale(1);
+      }
+
+      58% {
         opacity: 1;
-        transform: translate(-24px, 6px) scale(0.99);
+        transform: translate(-24px, 7px) scale(1.02);
       }
 
-      54% {
+      72% {
+        opacity: 0.9;
+        transform: translate(14px, -5px) scale(1.01);
+      }
+
+      82% {
         opacity: 0;
+        transform: translate(0, 0) scale(1);
       }
 
-      62% {
-        opacity: 1;
-        transform: translate(18px, -5px) scale(1.04);
-      }
-
-      70% {
-        opacity: 0;
-      }
-
-      78% {
-        opacity: 1;
-        transform: translate(-12px, 3px) scale(1.01);
-      }
-
-      86% {
-        opacity: 0;
+      88% {
+        opacity: 0.8;
+        transform: translate(8px, -2px) scale(1.01);
       }
 
       100% {
@@ -196,47 +182,27 @@
 
     @keyframes introGlitchSlices {
       0% {
-        clip-path: inset(0 0 100% 0);
-      }
-
-      10% {
-        clip-path: inset(5% 0 75% 0);
+        clip-path: inset(0 0 0 0);
       }
 
       20% {
-        clip-path: inset(35% 0 45% 0);
-      }
-
-      30% {
-        clip-path: inset(60% 0 20% 0);
+        clip-path: inset(4% 0 8% 0);
       }
 
       40% {
-        clip-path: inset(15% 0 70% 0);
-      }
-
-      50% {
-        clip-path: inset(45% 0 35% 0);
+        clip-path: inset(12% 0 6% 0);
       }
 
       60% {
-        clip-path: inset(70% 0 10% 0);
-      }
-
-      70% {
-        clip-path: inset(25% 0 55% 0);
+        clip-path: inset(6% 0 14% 0);
       }
 
       80% {
-        clip-path: inset(10% 0 80% 0);
-      }
-
-      90% {
-        clip-path: inset(50% 0 30% 0);
+        clip-path: inset(10% 0 5% 0);
       }
 
       100% {
-        clip-path: inset(0 0 100% 0);
+        clip-path: inset(0 0 0 0);
       }
     }
 
@@ -794,7 +760,7 @@
       <div class="stars"></div>
 
       <div style="position:absolute; left:50%; top:220px; transform:translateX(-50%); text-align:center; opacity:.8;">
-        <div style="font-size:44px; letter-spacing:0.5px; font-family: 'widescreen-mixed', sans-serif;">Move the mouse
+        <div style="font-size:20px; letter-spacing:0.5px; font-family: 'widescreen-mixed', sans-serif;">Move the mouse
           to control Putin</div>
       </div>
     </div>
@@ -951,7 +917,7 @@
       intro.classList.remove("glitching");
 
       // short clean hold
-      await wait(200);
+      await wait(600);
 
       // separate the face slab
       intro.classList.add("separate");
