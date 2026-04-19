@@ -53,11 +53,10 @@
     }
 
     #intro {
-      --face-x: -110px;
-      --face-y: -40px;
-      --face-size: 480px;
-      --face-slide-left: 170px;
-      --face-slide-up: 20px;
+      --face-x: -90px;
+      --face-y: -30px;
+      --face-size: 500px;
+      --face-slide-left: 200px;
     }
 
     #introFace {
@@ -69,32 +68,18 @@
       height: auto;
       object-fit: contain;
       object-position: center center;
-      opacity: 0;
+      opacity: 1;
 
       transform:
         translate(-50%, -50%) translate(var(--face-x), var(--face-y));
 
       transform-origin: center center;
-      transition:
-        transform 1600ms cubic-bezier(0.16, 1, 0.3, 1),
-        opacity 120ms linear;
+      transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-
 
     #intro.separate #introFace {
       transform:
-        translate(-50%, -50%) translate(calc(var(--face-x) - var(--face-slide-left)), calc(var(--face-y) - var(--face-slide-up)));
-    }
-
-    #introBase {
-      z-index: 1;
-      opacity: 1;
-    }
-
-    #introGlitch {
-      z-index: 4;
-      opacity: 0;
-      mix-blend-mode: normal;
+        translate(-50%, -50%) translate(calc(var(--face-x) - var(--face-slide-left)), var(--face-y));
     }
 
     #intro.glitching #introGlitch {
@@ -858,12 +843,9 @@
 
     const LEVEL_DURATION = 30;
     const AUTO_SCROLL_SPEED = 600;
-    const INTRO_BASE_FULL = "assets/img/intro/putin.png";
-    const INTRO_BASE_FACELESS = "assets/img/intro/Putin-Base-6.jpg";
     //const HIT_FLASH_SRC = "assets/img/HIT CONFIRMED.png";
 
     const world = document.getElementById("world");
-    const introBase = document.getElementById("introBase");
     const intro = document.getElementById("intro");
     const introFace = document.getElementById("introFace");
     const head = document.getElementById("head");
@@ -927,40 +909,21 @@
     }
 
     async function runIntroSequence() {
-      // start on full base image
-      introBase.src = INTRO_BASE_FULL;
-      introFace.style.opacity = "0";
-
       await wait(250);
 
-      // glitch over the full base image
+      // glitch the full composition
       intro.classList.add("glitching");
       await wait(1500);
       intro.classList.remove("glitching");
 
-      // short clean pause after glitch
-      await wait(500);
+      // short clean hold
+      await wait(600);
 
-      // reveal the detached slab exactly where you want it
-      introFace.style.opacity = "1";
-
-      // swap to face-less base
-      const facelessImg = new Image();
-      facelessImg.src = INTRO_BASE_FACELESS;
-      await facelessImg.decode().catch(() => { });
-      introBase.src = INTRO_BASE_FACELESS;
-
-      // // reveal the detached slab exactly where you want it
-      // introFace.style.opacity = "1";
-
-      // short pause so the swap reads clearly
-      await wait(220);
-
-      // now move the slab left
+      // separate the face slab
       intro.classList.add("separate");
-      await wait(1600);
+      await wait(750);
 
-      // transfer gameplay head to the slab's final position
+      // move gameplay head to where the intro face ended up
       const faceRect = introFace.getBoundingClientRect();
       const headRect = head.getBoundingClientRect();
 
@@ -971,7 +934,6 @@
       head.style.top = `${headY - headRect.height / 2}px`;
       head.style.opacity = "1";
 
-      // fade intro away
       intro.classList.add("hide");
       await wait(400);
 
