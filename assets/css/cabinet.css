@@ -43,8 +43,8 @@ body {
 
 .putinButton {
   position: absolute;
-  left: 50%;
-  top: 10%;
+  left: 85%;
+  top: 1%;
   transform: translateX(-50%);
   padding: 10px 20px;
   font-size: 16px;

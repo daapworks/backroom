@@ -1,7 +1,7 @@
 // assets/js/cabinet.js
 (() => {
   const fileEls = Array.from(
-    document.querySelectorAll("#file1, #file2, #file3, #file4, #file5, #file6")
+    document.querySelectorAll("#file1, #file2, #file3, #file4, #file5, #file6, #file7, #file8")
   );
 
   // Tune these numbers to taste
