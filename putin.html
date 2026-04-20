@@ -7,6 +7,19 @@
   <title>Head Lasers Scroll Scene</title>
   <link rel="stylesheet" href="https://use.typekit.net/rsd6dgx.css">
   <style>
+    #introReference {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      z-index: 5;
+      opacity: 0.50;
+      pointer-events: none;
+      mix-blend-mode: normal;
+    }
+
     html,
     body {
       height: 100%;
@@ -53,10 +66,11 @@
     }
 
     #intro {
-      --face-x: -90px;
+      --face-x: -106px;
       --face-y: -30px;
-      --face-size: 500px;
-      --face-slide-left: 200px;
+      --face-size: 470px;
+      --face-slide-left: 120px;
+      --face-slide-up: 30px;
     }
 
     #introFace {
@@ -75,11 +89,13 @@
 
       transform-origin: center center;
       transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+
     }
 
     #intro.separate #introFace {
       transform:
-        translate(-50%, -50%) translate(calc(var(--face-x) - var(--face-slide-left)), var(--face-y));
+        translate(-50%, -50%) translate(calc(var(--face-x) - var(--face-slide-left)),
+          calc(var(--face-y) - var(--face-slide-up)));
     }
 
     #intro.glitching #introGlitch {
@@ -751,6 +767,7 @@
 <body>
   <div id="intro">
     <img id="introBase" src="assets/img/intro/Putin-Base-6.jpg" alt="">
+    <!-- <img id="introReference" src="assets/img/intro/putin.png" alt=""> -->
     <img id="introGlitch" src="assets/img/intro/Putin-Intro-Glitch.png" alt="">
     <img id="introFace" src="assets/img/intro/putin-face-slab.png" alt="">
   </div>
@@ -798,6 +815,34 @@
   <div id="status"></div>
 
   <script>
+    // const introEl = document.getElementById("intro");
+
+    // let faceX = -90;
+    // let faceY = -30;
+    // let faceSize = 400;
+
+    // function syncFaceVars() {
+    //   introEl.style.setProperty("--face-x", `${faceX}px`);
+    //   introEl.style.setProperty("--face-y", `${faceY}px`);
+    //   introEl.style.setProperty("--face-size", `${faceSize}px`);
+    //   console.log(`faceX=${faceX}, faceY=${faceY}, faceSize=${faceSize}`);
+    // }
+
+    // syncFaceVars();
+
+    // window.addEventListener("keydown", (e) => {
+    //   const step = e.shiftKey ? 10 : 1;
+
+    //   if (e.code === "ArrowLeft") faceX -= step;
+    //   if (e.code === "ArrowRight") faceX += step;
+    //   if (e.code === "ArrowUp") faceY -= step;
+    //   if (e.code === "ArrowDown") faceY += step;
+
+    //   if (e.code === "BracketLeft") faceSize -= step;
+    //   if (e.code === "BracketRight") faceSize += step;
+
+    //   syncFaceVars();
+    // });
     const LEVELS = [
       {
         label: "LEVEL ONE",
@@ -1021,10 +1066,10 @@
       await wait(700);
 
       if (currentLevel < LEVELS.length - 1) {
-        nextLevelBtn.textContent = "NEXT LEVEL ↓";
+        //nextLevelBtn.textContent = "NEXT LEVEL ↓";
         nextLevelBtn.classList.add("show");
       } else {
-        nextLevelBtn.textContent = "FINISH";
+        //nextLevelBtn.textContent = "FINISH";
         nextLevelBtn.classList.add("show");
         gameWon = true;
       }

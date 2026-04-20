@@ -64,81 +64,81 @@ body {
 
 #file9 {
   position: absolute;
-  left: 22%;
+  left: 21%;
   top: 25%;
-  width: 56%;
+  width: 58%;
   height: auto;
   z-index: 2;
 }
 
 #file8 {
   position: absolute;
-  left: 21.5%;
+  left: 20.5%;
   top: 27%;
-  width: 57%;
+  width: 59%;
   height: auto;
   z-index: 3;
 }
 
 #file7 {
   position: absolute;
-  left: 21%;
+  left: 20%;
   top: 31%;
-  width: 58%;
+  width: 60%;
   height: auto;
   z-index: 4;
 }
 
 #file6 {
   position: absolute;
-  left: 20.5%;
+  left: 19.5%;
   top: 35%;
-  width: 59%;
+  width: 61%;
   height: auto;
   z-index: 5;
 }
 
 #file5 {
   position: absolute;
-  left: 20%;
+  left: 19%;
   top: 39%;
-  width: 60%;
+  width: 62%;
   height: auto;
   z-index: 6;
 }
 
 #file4 {
   position: absolute;
-  left: 19.5%;
+  left: 18.5%;
   top: 43%;
-  width: 61%;
+  width: 63%;
   height: auto;
   z-index: 7;
 }
 
 #file3 {
   position: absolute;
-  left: 19%;
+  left: 18%;
   top: 47%;
-  width: 62%;
+  width: 64%;
   height: auto;
   z-index: 8;
 }
 
 #file2 {
   position: absolute;
-  left: 18.5%;
+  left: 17.5%;
   top: 51%;
-  width: 63%;
+  width: 68%;
   height: auto;
   z-index: 9;
 }
 
 #file1 {
   position: absolute;
-  left: 18%;
+  left: 17%;
   top: 55%;
-  width: 64%;
+  width: 66%;
   height: auto;
   z-index: 10;
 }
