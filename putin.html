@@ -222,6 +222,23 @@
       }
     }
 
+    #introText {
+      position: absolute;
+      width: 25%;
+      left: 61%;
+      bottom: 10%;
+      z-index: 3;
+    }
+
+    #introButton {
+      position: absolute;
+      left: 61%;
+      bottom: 5%;
+      width: auto;
+      height: 5%;
+      z-index: 3;
+    }
+
     #scroll {
       position: fixed;
       inset: 0;
@@ -761,6 +778,30 @@
       z-index: 55;
       opacity: 0;
     }
+
+    #gameOverScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.88);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    #gameOverScreen.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #gameOverImg {
+      max-width: min(90vw, 1000px);
+      max-height: 90vh;
+      object-fit: contain;
+      display: block;
+    }
   </style>
 </head>
 
@@ -770,6 +811,9 @@
     <!-- <img id="introReference" src="assets/img/intro/putin.png" alt=""> -->
     <img id="introGlitch" src="assets/img/intro/Putin-Intro-Glitch.png" alt="">
     <img id="introFace" src="assets/img/intro/putin-face-slab.png" alt="">
+
+    <img id="introText" src="assets/img/landing page/Putin'sHitList-Text.png" alt="">
+    <img id="introButton" src="assets/img/landing page/ScrolltoEnter Button.png" alt="">
   </div>
 
   <div id="scroll">
@@ -809,6 +853,10 @@
     <div id="overlayNoise"></div>
     <img id="hitOverlayImg" src="" alt="">
     <button id="nextLevelBtn">NEXT LEVEL ↓<p style="color: red;">↓</p></button>
+  </div>
+
+  <div id="gameOverScreen" aria-hidden="true">
+    <img id="gameOverImg" src="assets/img/GAME OVER.png" alt="Game Over">
   </div>
 
 
@@ -907,6 +955,8 @@
     const hitOverlayImg = document.getElementById("hitOverlayImg");
     const nextLevelBtn = document.getElementById("nextLevelBtn");
     const status = document.getElementById("status");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const gameOverImg = document.getElementById("gameOverImg");
 
     //hitFlashImg.src = HIT_FLASH_SRC;
 
@@ -939,6 +989,8 @@
 
     let shotStep = 0;
     const SHOT_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+    let gameOver = false;
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -1113,8 +1165,7 @@
 
         if (timeRemaining <= 0) {
           timeRemaining = 0;
-          levelEnded = true;
-          autoScrolling = false;
+          triggerGameOver();
         }
 
         timerEl.textContent = formatTime(timeRemaining);
@@ -1185,6 +1236,21 @@
         targetWrap.style.top = `${targetY}px`;
       }
 
+      if (
+        gameplayEnabled &&
+        !gameOver &&
+        targetWrap.classList.contains("show") &&
+        !targetDestroyed &&
+        !hitSequenceRunning
+      ) {
+        const headRect = head.getBoundingClientRect();
+        const targetRect = targetWrap.getBoundingClientRect();
+
+        if (rectsOverlap(headRect, targetRect)) {
+          triggerGameOver();
+        }
+      }
+
       requestAnimationFrame(tick);
     }
 
@@ -1198,6 +1264,7 @@
     }
 
     function fireLasers() {
+      if (gameOver) return;
       if (levelEnded) return;
       if (!targetWrap.classList.contains("show")) return;
       if (targetDestroyed || hitSequenceRunning) return;
@@ -1388,6 +1455,33 @@
       await wait(500);
 
       hitOverlay.classList.remove("show", "glitch-out");
+    }
+
+    function rectsOverlap(a, b) {
+      return !(
+        a.right < b.left ||
+        a.left > b.right ||
+        a.bottom < b.top ||
+        a.top > b.bottom
+      );
+    }
+
+    function triggerGameOver() {
+      if (gameOver) return;
+
+      gameOver = true;
+      levelEnded = true;
+      autoScrolling = false;
+      timerStarted = false;
+      gameplayEnabled = false;
+      hitSequenceRunning = false;
+
+      // hide anything else that might still be on screen
+      targetWrap.classList.remove("show");
+      nextLevelBtn.classList.remove("show");
+      hitOverlay.classList.remove("show", "glitching", "glitch-out");
+
+      gameOverScreen.classList.add("show");
     }
 
     window.addEventListener("keydown", (e) => {
