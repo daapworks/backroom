@@ -819,28 +819,45 @@
       opacity: 0;
     }
 
-    #gameOverScreen {
+    #endSequenceScreen {
       position: fixed;
       inset: 0;
       z-index: 500;
-      display: grid;
-      place-items: center;
-      background: rgba(0, 0, 0, 0.88);
+      background: rgba(0, 0, 0, 0.92);
       opacity: 0;
       pointer-events: none;
       transition: opacity 220ms ease;
     }
 
-    #gameOverScreen.show {
+    #endSequenceScreen.show {
       opacity: 1;
       pointer-events: auto;
     }
 
-    #gameOverImg {
-      max-width: min(90vw, 1000px);
-      max-height: 90vh;
+    .endSeqImg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-position: center center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #endSeqImg1 {
       object-fit: contain;
-      display: block;
+    }
+
+    #endSeqImg2 {
+      object-fit: cover;
+    }
+
+    #endSeqImg3 {
+      object-fit: cover;
+    }
+
+    .endSeqImg.show {
+      opacity: 1;
     }
   </style>
 </head>
@@ -898,8 +915,10 @@
     <button id="nextLevelBtn">NEXT LEVEL ↓<p style="color: red;">↓</p></button>
   </div>
 
-  <div id="gameOverScreen" aria-hidden="true">
-    <img id="gameOverImg" src="assets/img/GAME OVER.png" alt="Game Over">
+  <div id="endSequenceScreen" aria-hidden="true">
+    <img id="endSeqImg1" class="endSeqImg" src="" alt="">
+    <img id="endSeqImg2" class="endSeqImg" src="" alt="">
+    <img id="endSeqFinal" class="endSeqImg" src="" alt="">
   </div>
 
 
@@ -977,6 +996,18 @@
       }
     ];
 
+    const GAME_OVER_SEQUENCE = {
+      blink1: "assets/img/gameover/loseText.png",
+      blink2: "assets/img/gameover/loseBlink.png",
+      final: "assets/img/gameover/loseScreen.png"
+    };
+
+    const WIN_SEQUENCE = {
+      blink1: "assets/img/gameover/winText.png",
+      blink2: "assets/img/gameover/winBlink.png",
+      final: "assets/img/gameover/winScreen.png"
+    };
+
     const LEVEL_DURATION = 30;
     const AUTO_SCROLL_SPEED = 600;
     //const HIT_FLASH_SRC = "assets/img/HIT CONFIRMED.png";
@@ -1000,8 +1031,10 @@
     const instructionText2 = document.getElementById("instructionText2");
     const nextLevelBtn = document.getElementById("nextLevelBtn");
     const status = document.getElementById("status");
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const gameOverImg = document.getElementById("gameOverImg");
+    const endSequenceScreen = document.getElementById("endSequenceScreen");
+    const endSeqImg1 = document.getElementById("endSeqImg1");
+    const endSeqImg2 = document.getElementById("endSeqImg2");
+    const endSeqFinal = document.getElementById("endSeqFinal");
 
     //hitFlashImg.src = HIT_FLASH_SRC;
 
@@ -1187,14 +1220,12 @@
       showFinalOverlay();
       await wait(700);
 
-      if (currentLevel < LEVELS.length - 1) {
-        //nextLevelBtn.textContent = "NEXT LEVEL ↓";
+      // if (currentLevel < LEVELS.length - 1) {
         nextLevelBtn.classList.add("show");
-      } else {
-        //nextLevelBtn.textContent = "FINISH";
-        nextLevelBtn.classList.add("show");
-        gameWon = true;
-      }
+      // }
+      // } else {
+      //   await triggerWin();
+      // }
     }
 
     window.addEventListener("pointermove", (e) => {
@@ -1207,7 +1238,8 @@
 
     nextLevelBtn.addEventListener("click", async () => {
       if (currentLevel >= LEVELS.length - 1) {
-        await hideOverlayWithGlitch();
+        await triggerWin();
+        //await hideOverlayWithGlitch();
         return;
       }
 
@@ -1299,7 +1331,7 @@
           instructionText2.classList.add("show");
         }, 4000);
 
-      
+
         setTimeout(() => {
           instructionText2.classList.remove("show");
         }, 4000);
@@ -1590,7 +1622,48 @@
       );
     }
 
-    function triggerGameOver() {
+    async function blinkImage(el, times = 3, onMs = 220, offMs = 140) {
+      for (let i = 0; i < times; i++) {
+        el.classList.add("show");
+        await wait(onMs);
+        el.classList.remove("show");
+        await wait(offMs);
+      }
+    }
+
+    function clearEndSequenceImages() {
+      endSeqImg1.classList.remove("show");
+      endSeqImg2.classList.remove("show");
+      endSeqFinal.classList.remove("show");
+    }
+
+    async function runEndSequence(sequence) {
+      // preload images
+      const imgs = [sequence.blink1, sequence.blink2, sequence.final];
+      await Promise.all(
+        imgs.map(src => {
+          const img = new Image();
+          img.src = src;
+          return img.decode().catch(() => { });
+        })
+      );
+
+      endSeqImg1.src = sequence.blink1;
+      endSeqImg2.src = sequence.blink2;
+      endSeqFinal.src = sequence.final;
+
+      clearEndSequenceImages();
+      endSequenceScreen.classList.add("show");
+
+      await blinkImage(endSeqImg1, 3, 220, 140);
+      await wait(120);
+      await blinkImage(endSeqImg2, 3, 220, 140);
+      await wait(120);
+
+      endSeqFinal.classList.add("show");
+    }
+
+    async function triggerGameOver() {
       if (gameOver) return;
 
       gameOver = true;
@@ -1600,12 +1673,32 @@
       gameplayEnabled = false;
       hitSequenceRunning = false;
 
-      // hide anything else that might still be on screen
       targetWrap.classList.remove("show");
       nextLevelBtn.classList.remove("show");
       hitOverlay.classList.remove("show", "glitching", "glitch-out");
+      instructionText.classList.remove("show");
+      instructionText2.classList.remove("show");
 
-      gameOverScreen.classList.add("show");
+      await runEndSequence(GAME_OVER_SEQUENCE);
+    }
+
+    async function triggerWin() {
+      if (gameWon) return;
+
+      gameWon = true;
+      levelEnded = true;
+      autoScrolling = false;
+      timerStarted = false;
+      gameplayEnabled = false;
+      hitSequenceRunning = false;
+
+      targetWrap.classList.remove("show");
+      nextLevelBtn.classList.remove("show");
+      hitOverlay.classList.remove("show", "glitching", "glitch-out");
+      instructionText.classList.remove("show");
+      instructionText2.classList.remove("show");
+
+      await runEndSequence(WIN_SEQUENCE);
     }
 
     window.addEventListener("keydown", (e) => {
