@@ -41,8 +41,29 @@ body {
   height: auto;
 }
 
-.putinButton {
+#fileName,
+#putinButton {
+  transition: opacity 0.2s ease;
+}
+
+.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#putinButton {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#putinButton.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#putinButton {
   position: absolute;
+  width: 8%;
   left: 85%;
   top: 1%;
   transform: translateX(-50%);
@@ -52,6 +73,26 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+#fileName {
+  position: absolute;
+  width: 30%;
+  left: 62%;
+  top: 3%;
+}
+
+#fileText {
+  position: absolute;
+  width: 100%;
+  left: 53.5%;
+  top: 55%;
+  transform: translate(-50%, -50%);
+  font-family: "Courier New", monospace;
+  font-size: 18px;
+  color: #111;
+  z-index: 12;
+  user-select: none;
 }
 
 #back{
@@ -129,7 +170,7 @@ body {
   position: absolute;
   left: 17.5%;
   top: 51%;
-  width: 68%;
+  width: 65%;
   height: auto;
   z-index: 9;
 }

@@ -4,9 +4,12 @@
     document.querySelectorAll("#file1, #file2, #file3, #file4, #file5, #file6, #file7, #file8")
   );
 
+  const fileName = document.getElementById("fileName");
+  const putinButton = document.getElementById("putinButton");
+
   // Tune these numbers to taste
   const HOVER_LIFT = 14;     // px up on hover
-  const OPEN_LIFT  = 260;    // px up on click (pull-out distance)
+  const OPEN_LIFT = 300;    // px up on click (pull-out distance)
 
   // Track state
   let openEl = null;
@@ -36,6 +39,9 @@
       // }
     });
 
+    fileName.classList.remove("hide");
+    putinButton.classList.remove("show");
+
     openEl = null;
   }
 
@@ -48,6 +54,14 @@
 
     // Bring above everything (your front drawer is z=8)
     //el.style.zIndex = "20";
+
+    if (el.id === "file1") {
+      fileName.classList.add("hide");
+      putinButton.classList.add("show");
+    } else {
+      fileName.classList.remove("hide");
+      putinButton.classList.remove("show");
+    }
 
     gsap.to(el, {
       y: -OPEN_LIFT,
