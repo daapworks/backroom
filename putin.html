@@ -353,6 +353,14 @@
       z-index: 200;
     }
 
+    #instructionText.show {
+      opacity: 1;
+    }
+
+    #instructionText2.show {
+      opacity: 1;
+    }
+
     #levelLabel,
     #timer {
       position: absolute;
@@ -377,6 +385,38 @@
 
     #timer {
       right: 20px;
+    }
+
+    #instructionText {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      font-family: 'widescreen-mixed', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      color: white;
+      opacity: 0;
+
+      transition: opacity 250ms ease;
+      pointer-events: none;
+    }
+
+    #instructionText2 {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      font-family: 'widescreen-mixed', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      color: white;
+      opacity: 0;
+
+      transition: opacity 250ms ease;
+      pointer-events: none;
     }
 
     #hitFlash {
@@ -842,6 +882,9 @@
     <div id="timer">00:30</div>
   </div>
 
+  <div id="instructionText"></div>
+  <div id="instructionText2"></div>
+
   <div id="flashL" class="eye-flash"></div>
   <div id="flashR" class="eye-flash"></div>
 
@@ -953,6 +996,8 @@
     const hitFlashImg = document.getElementById("hitFlashImg");
     const hitOverlay = document.getElementById("hitOverlay");
     const hitOverlayImg = document.getElementById("hitOverlayImg");
+    const instructionText = document.getElementById("instructionText");
+    const instructionText2 = document.getElementById("instructionText2");
     const nextLevelBtn = document.getElementById("nextLevelBtn");
     const status = document.getElementById("status");
     const gameOverScreen = document.getElementById("gameOverScreen");
@@ -962,6 +1007,7 @@
 
     let introFinished = false;
     let gameplayEnabled = false;
+    let waitingForIntroScroll = false;
 
     let scrollY = 0;
     let autoScrolling = false;
@@ -986,6 +1032,8 @@
     let targetDestroyed = false;
     let hitSequenceRunning = false;
     let gameWon = false;
+    let gracePeriodActive = false;
+    let graceEndTime = 0;
 
     let shotStep = 0;
     const SHOT_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
@@ -1020,6 +1068,18 @@
       intro.classList.add("separate");
       await wait(750);
 
+      // STOP HERE and wait for user scroll on landing page
+      waitingForIntroScroll = true;
+
+      timerEl.style.opacity = "0.5";
+      levelLabel.textContent = "SCROLL TO BEGIN";
+    }
+
+    async function finishIntroAndStartGame() {
+      if (!waitingForIntroScroll || introFinished) return;
+
+      waitingForIntroScroll = false;
+
       // move gameplay head to where the intro face ended up
       const faceRect = introFace.getBoundingClientRect();
       const headRect = head.getBoundingClientRect();
@@ -1031,11 +1091,21 @@
       head.style.top = `${headY - headRect.height / 2}px`;
       head.style.opacity = "1";
 
+      // hide intro / landing page
       intro.classList.add("hide");
       await wait(400);
 
       intro.style.display = "none";
       introFinished = true;
+
+      // now enter gameplay
+      autoScrolling = true;
+      scrollStarted = true;
+      timerStarted = true;
+      gameplayEnabled = true;
+
+      timerEl.style.opacity = "1";
+      levelLabel.textContent = LEVELS[currentLevel].label;
     }
 
     async function loadLevel(index) {
@@ -1132,14 +1202,8 @@
       cursorY = e.clientY;
 
       if (!introFinished) return;
-
-      if (!scrollStarted) {
-        autoScrolling = true;
-        scrollStarted = true;
-        timerStarted = true;
-        gameplayEnabled = true;
-      }
     });
+
 
     nextLevelBtn.addEventListener("click", async () => {
       if (currentLevel >= LEVELS.length - 1) {
@@ -1155,10 +1219,51 @@
       autoScrolling = true;
       timerStarted = true;
     });
+    let touchStartY = 0;
+
+    window.addEventListener("touchstart", (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+      const dy = Math.abs(e.touches[0].clientY - touchStartY);
+      if (dy > 10) {
+        startGameplay();
+      }
+    }, { passive: true });
+
+    window.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaY) <= 2) return;
+
+      if (waitingForIntroScroll && !introFinished) {
+        finishIntroAndStartGame();
+        return;
+      }
+
+      if (!scrollStarted && introFinished) {
+        autoScrolling = true;
+        scrollStarted = true;
+        timerStarted = true;
+        gameplayEnabled = true;
+      }
+    }, { passive: true });
+
+    function startGameplay() {
+      if (scrollStarted || !introFinished) return;
+
+      autoScrolling = true;
+      scrollStarted = true;
+      timerStarted = true;
+      gameplayEnabled = true;
+    }
 
     function tick(now) {
       const delta = Math.min((now - lastTime) / 1000, 0.033);
       lastTime = now;
+
+      if (gracePeriodActive && now >= graceEndTime) {
+        gracePeriodActive = false;
+      }
 
       if (timerStarted && !levelEnded && !gameWon) {
         timeRemaining -= delta;
@@ -1181,8 +1286,27 @@
       if (!gameWon &&
         scrollY >= LEVELS[currentLevel].revealY &&
         !targetDestroyed &&
-        !hitSequenceRunning) {
+        !hitSequenceRunning && !targetWrap.classList.contains("show")) {
         targetWrap.classList.add("show");
+
+        // show instructions
+        instructionText.textContent = "MOVE WITH MOUSE • PRESS SPACE TO FIRE";
+        instructionText.classList.add("show");
+
+        setTimeout(() => {
+          instructionText.classList.remove("show");
+          instructionText2.textContent = "DON'T GET TOO CLOSE";
+          instructionText2.classList.add("show");
+        }, 4000);
+
+      
+        setTimeout(() => {
+          instructionText.classList.remove("show");
+        }, 4000);
+
+        // start grace period (2 seconds)
+        gracePeriodActive = true;
+        graceEndTime = performance.now() + 2000;
       }
 
       if (gameplayEnabled) {
@@ -1246,7 +1370,7 @@
         const headRect = head.getBoundingClientRect();
         const targetRect = targetWrap.getBoundingClientRect();
 
-        if (rectsOverlap(headRect, targetRect)) {
+        if (!gracePeriodActive && rectsOverlap(headRect, targetRect)) {
           triggerGameOver();
         }
       }
