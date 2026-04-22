@@ -859,6 +859,90 @@
     .endSeqImg.show {
       opacity: 1;
     }
+
+    #endSeqEdgeGlitch {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    #endSeqEdgeGlitch.show {
+      opacity: 0.55;
+      animation: edgeGlitchFlicker 180ms steps(2, end) infinite;
+    }
+
+    #endSeqButtons {
+      position: absolute;
+      left: 42%;
+      bottom: 20%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 70%;
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    #endSeqButtons.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #endSeqButtons a {
+      display: block;
+    }
+
+    #endSeqButtons img {
+      display: block;
+      max-width: 240px;
+      height: auto;
+      cursor: pointer;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    #endSeqButtons img:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    @keyframes edgeGlitchFlicker {
+      0% {
+        opacity: 0.42;
+        transform: translate(0, 0);
+      }
+
+      20% {
+        opacity: 0.58;
+        transform: translate(-2px, 0);
+      }
+
+      40% {
+        opacity: 0.48;
+        transform: translate(2px, 0);
+      }
+
+      60% {
+        opacity: 0.62;
+        transform: translate(-1px, 1px);
+      }
+
+      80% {
+        opacity: 0.5;
+        transform: translate(1px, -1px);
+      }
+
+      100% {
+        opacity: 0.55;
+        transform: translate(0, 0);
+      }
+    }
   </style>
 </head>
 
@@ -919,6 +1003,17 @@
     <img id="endSeqImg1" class="endSeqImg" src="" alt="">
     <img id="endSeqImg2" class="endSeqImg" src="" alt="">
     <img id="endSeqFinal" class="endSeqImg" src="" alt="">
+
+    <img id="endSeqEdgeGlitch" src="assets/img/end/edge-glitch.png" alt="">
+
+    <div id="endSeqButtons">
+      <a id="endBtn1Link" href="#">
+        <img id="endBtn1Img" src="assets/img/gameover/return to start button.png" alt="">
+      </a>
+      <a id="endBtn2Link" href="#">
+        <img id="endBtn2Img" src="assets/img/gameover/read more button.png" alt="">
+      </a>
+    </div>
   </div>
 
 
@@ -1035,6 +1130,22 @@
     const endSeqImg1 = document.getElementById("endSeqImg1");
     const endSeqImg2 = document.getElementById("endSeqImg2");
     const endSeqFinal = document.getElementById("endSeqFinal");
+    const endSeqEdgeGlitch = document.getElementById("endSeqEdgeGlitch");
+    const endSeqButtons = document.getElementById("endSeqButtons");
+    const endBtn1Link = document.getElementById("endBtn1Link");
+    const endBtn2Link = document.getElementById("endBtn2Link");
+    const endBtn1Img = document.getElementById("endBtn1Img");
+    const endBtn2Img = document.getElementById("endBtn2Img");
+
+    const GAME_OVER_BUTTONS = {
+      button1Href: "index.html",
+      button2Href: "cabinet.html"
+    };
+
+    const WIN_BUTTONS = {
+      button1Href: "index.html",
+      button2Href: "cabinet.html"
+    };
 
     //hitFlashImg.src = HIT_FLASH_SRC;
 
@@ -1221,7 +1332,7 @@
       await wait(700);
 
       // if (currentLevel < LEVELS.length - 1) {
-        nextLevelBtn.classList.add("show");
+      nextLevelBtn.classList.add("show");
       // }
       // } else {
       //   await triggerWin();
@@ -1635,10 +1746,11 @@
       endSeqImg1.classList.remove("show");
       endSeqImg2.classList.remove("show");
       endSeqFinal.classList.remove("show");
+      endSeqEdgeGlitch.classList.remove("show");
+      endSeqButtons.classList.remove("show");
     }
 
-    async function runEndSequence(sequence) {
-      // preload images
+    async function runEndSequence(sequence, buttons) {
       const imgs = [sequence.blink1, sequence.blink2, sequence.final];
       await Promise.all(
         imgs.map(src => {
@@ -1661,6 +1773,12 @@
       await wait(120);
 
       endSeqFinal.classList.add("show");
+
+      endBtn1Link.href = buttons.button1Href;
+      endBtn2Link.href = buttons.button2Href;
+
+      endSeqEdgeGlitch.classList.add("show");
+      endSeqButtons.classList.add("show");
     }
 
     async function triggerGameOver() {
@@ -1679,7 +1797,7 @@
       instructionText.classList.remove("show");
       instructionText2.classList.remove("show");
 
-      await runEndSequence(GAME_OVER_SEQUENCE);
+      await runEndSequence(GAME_OVER_SEQUENCE, GAME_OVER_BUTTONS);
     }
 
     async function triggerWin() {
@@ -1698,7 +1816,7 @@
       instructionText.classList.remove("show");
       instructionText2.classList.remove("show");
 
-      await runEndSequence(WIN_SEQUENCE);
+      await runEndSequence(WIN_SEQUENCE, WIN_BUTTONS);
     }
 
     window.addEventListener("keydown", (e) => {
