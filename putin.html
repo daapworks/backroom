@@ -876,7 +876,15 @@
     }
 
     #endSeqImg1 {
+      width: auto;
+      height: auto;
+      max-width: min(80vw, 900px);
+      max-height: 80vh;
       object-fit: contain;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
     #endSeqImg2 {
@@ -885,6 +893,11 @@
 
     #endSeqImg3 {
       object-fit: cover;
+    }
+
+    #endSeqFinal {
+      object-fit: cover;
+      object-position: center center;
     }
 
     .endSeqImg.show {
@@ -906,6 +919,21 @@
     #endSeqEdgeGlitch.show {
       opacity: 0.55;
       animation: edgeGlitchFlicker 180ms steps(2, end) infinite;
+    }
+
+    #endSeqText {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      bottom: 18%;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 220ms ease;
+    }
+
+    #endSeqText.show {
+      opacity: 1;
     }
 
     #endSeqButtons {
@@ -984,8 +1012,8 @@
     <img id="introGlitch" src="assets/img/intro/Putin-Intro-Glitch.png" alt="">
     <img id="introFace" src="assets/img/intro/putin-face-slab.png" alt="">
 
-    <img id="introText" src="assets/img/landing page/Putin'sHitList-Text.png" alt="">
-    <img id="introButton" src="assets/img/landing page/ScrolltoEnter Button.png" alt="">
+    <img id="introText" src="assets/img/landing page/putinshitlistsvg.svg" alt="">
+    <img id="introButton" src="assets/img/landing page/scrolltoentersvg.svg" alt="">
   </div>
 
   <div id="scroll">
@@ -1039,6 +1067,10 @@
     <img id="endSeqFinal" class="endSeqImg" src="" alt="">
 
     <img id="endSeqEdgeGlitch" src="assets/img/end/edge-glitch.png" alt="">
+
+    <div id="endSeqText">
+      <img id="textImage" src="assets/img/gameover/winScreen.svg" alt=""> 
+    </div>
 
     <div id="endSeqButtons">
       <a id="endBtn1Link" href="#">
@@ -1128,13 +1160,15 @@
     const GAME_OVER_SEQUENCE = {
       blink1: "assets/img/gameover/loseText.png",
       blink2: "assets/img/gameover/loseBlink.png",
-      final: "assets/img/gameover/loseScreen.png"
+      final: "assets/img/gameover/background1.png",
+      text: "assets/img/gameover/loseScreen.svg"
     };
 
     const WIN_SEQUENCE = {
       blink1: "assets/img/gameover/winText.png",
       blink2: "assets/img/gameover/winBlink.png",
-      final: "assets/img/gameover/winScreen.png"
+      final: "assets/img/gameover/background2.png",
+      text: "assets/img/gameover/winScreen.svg"
     };
 
     const LEVEL_DURATION = 30;
@@ -1170,6 +1204,8 @@
     const endBtn2Link = document.getElementById("endBtn2Link");
     const endBtn1Img = document.getElementById("endBtn1Img");
     const endBtn2Img = document.getElementById("endBtn2Img");
+    const endSeqText = document.getElementById("endSeqText");
+    const textImage = document.getElementById("textImage");
 
     const GAME_OVER_BUTTONS = {
       button1Href: "index.html",
@@ -1797,6 +1833,7 @@
       endSeqImg1.src = sequence.blink1;
       endSeqImg2.src = sequence.blink2;
       endSeqFinal.src = sequence.final;
+      textImage.src = sequence.text;
 
       clearEndSequenceImages();
       endSequenceScreen.classList.add("show");
@@ -1811,6 +1848,7 @@
       endBtn1Link.href = buttons.button1Href;
       endBtn2Link.href = buttons.button2Href;
 
+      endSeqText.classList.add("show");
       endSeqEdgeGlitch.classList.add("show");
       endSeqButtons.classList.add("show");
     }
