@@ -1002,6 +1002,130 @@
         transform: translate(0, 0);
       }
     }
+
+    #endSeqImg2.glitch-in {
+      opacity: 1;
+      animation:
+        endSeqGlitchInFlicker 500ms steps(2, end),
+        endSeqGlitchInShake 500ms steps(2, end);
+    }
+
+    #endSeqImg2.glitch-out {
+      opacity: 1;
+      animation:
+        endSeqGlitchOutFlicker 500ms steps(2, end),
+        endSeqGlitchOutShake 500ms steps(2, end);
+    }
+
+    /* IN */
+    @keyframes endSeqGlitchInFlicker {
+      0% {
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      20% {
+        opacity: 0.2;
+      }
+
+      30% {
+        opacity: 1;
+      }
+
+      45% {
+        opacity: 0.4;
+      }
+
+      60% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes endSeqGlitchInShake {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      20% {
+        transform: translate(-12px, 2px);
+      }
+
+      40% {
+        transform: translate(10px, -2px);
+      }
+
+      60% {
+        transform: translate(-6px, 1px);
+      }
+
+      80% {
+        transform: translate(4px, -1px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
+    /* OUT */
+    @keyframes endSeqGlitchOutFlicker {
+      0% {
+        opacity: 1;
+      }
+
+      20% {
+        opacity: 0.35;
+      }
+
+      35% {
+        opacity: 1;
+      }
+
+      55% {
+        opacity: 0.15;
+      }
+
+      75% {
+        opacity: 0.8;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes endSeqGlitchOutShake {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      20% {
+        transform: translate(12px, -2px);
+      }
+
+      40% {
+        transform: translate(-10px, 3px);
+      }
+
+      60% {
+        transform: translate(8px, -1px);
+      }
+
+      80% {
+        transform: translate(-6px, 2px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
   </style>
 </head>
 
@@ -1069,7 +1193,7 @@
     <img id="endSeqEdgeGlitch" src="assets/img/end/edge-glitch.png" alt="">
 
     <div id="endSeqText">
-      <img id="textImage" src="assets/img/gameover/winScreen.svg" alt=""> 
+      <img id="textImage" src="assets/img/gameover/winScreen.svg" alt="">
     </div>
 
     <div id="endSeqButtons">
@@ -1814,14 +1938,16 @@
 
     function clearEndSequenceImages() {
       endSeqImg1.classList.remove("show");
-      endSeqImg2.classList.remove("show");
+      endSeqImg2.classList.remove("show", "glitch-in", "glitch-out");
       endSeqFinal.classList.remove("show");
       endSeqEdgeGlitch.classList.remove("show");
       endSeqButtons.classList.remove("show");
+      endSeqText.classList.remove("show");
     }
 
     async function runEndSequence(sequence, buttons) {
-      const imgs = [sequence.blink1, sequence.blink2, sequence.final];
+      const imgs = [sequence.blink1, sequence.blink2, sequence.final, sequence.text].filter(Boolean);
+
       await Promise.all(
         imgs.map(src => {
           const img = new Image();
@@ -1838,11 +1964,22 @@
       clearEndSequenceImages();
       endSequenceScreen.classList.add("show");
 
+      // STEP 1 — blink first image
       await blinkImage(endSeqImg1, 3, 220, 140);
       await wait(120);
-      await blinkImage(endSeqImg2, 3, 220, 140);
+
+      // STEP 2 — win vs lose behavior
+      if (sequence === WIN_SEQUENCE) {
+        await glitchInImage(endSeqImg2, 500);
+        await wait(900); // hold on screen
+        await glitchOutImage(endSeqImg2, 500);
+      } else {
+        await blinkImage(endSeqImg2, 3, 220, 140);
+      }
+
       await wait(120);
 
+      // STEP 3 — final screen
       endSeqFinal.classList.add("show");
 
       endBtn1Link.href = buttons.button1Href;
@@ -1851,6 +1988,27 @@
       endSeqText.classList.add("show");
       endSeqEdgeGlitch.classList.add("show");
       endSeqButtons.classList.add("show");
+    }
+
+    async function glitchInImage(el, duration = 500) {
+      el.classList.remove("glitch-out", "show");
+      void el.offsetWidth; // force reflow
+
+      el.classList.add("glitch-in");
+      await wait(duration);
+
+      el.classList.remove("glitch-in");
+      el.classList.add("show");
+    }
+
+    async function glitchOutImage(el, duration = 500) {
+      el.classList.remove("glitch-in", "show");
+      void el.offsetWidth;
+
+      el.classList.add("glitch-out");
+      await wait(duration);
+
+      el.classList.remove("glitch-out", "show");
     }
 
     async function triggerGameOver() {
