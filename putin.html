@@ -732,28 +732,35 @@
 
     #nextLevelBtn {
       position: absolute;
-      right: 5%;
+      right: 10%;
       bottom: 40px;
-      transform: translateX(-50%);
       z-index: 130;
+
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+
       border: 1px solid #01FF06;
       border-radius: 14px;
       padding: 14px 22px;
+
       font-size: 18px;
-      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+
       background: rgba(255, 255, 255, 0.14);
       color: white;
+
       backdrop-filter: blur(8px);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
       cursor: pointer;
+
       opacity: 0;
       pointer-events: none;
       transition: opacity 220ms ease, transform 220ms ease, background 180ms ease;
+
       font-family: "IBM Plex Mono", monospace;
-      font-weight: 500;
-      font-style: normal;
     }
 
     #nextLevelBtn.show {
@@ -763,6 +770,30 @@
 
     #nextLevelBtn:hover {
       background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* RED ARROW */
+    #nextLevelBtn .arrow {
+      color: #ff2a2a;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /* Optional: subtle bounce animation */
+    #nextLevelBtn .arrow {
+      animation: arrowBounce 1s infinite;
+    }
+
+    @keyframes arrowBounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(4px);
+      }
     }
 
     #overlayNoise {
@@ -996,7 +1027,10 @@
   <div id="hitOverlay" aria-hidden="true">
     <div id="overlayNoise"></div>
     <img id="hitOverlayImg" src="" alt="">
-    <button id="nextLevelBtn">NEXT LEVEL ↓<p style="color: red;">↓</p></button>
+    <button id="nextLevelBtn">
+      <span class="label">NEXT LEVEL</span>
+      <span class="arrow">↓</span>
+    </button>
   </div>
 
   <div id="endSequenceScreen" aria-hidden="true">
