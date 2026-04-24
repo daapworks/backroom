@@ -1,4 +1,7 @@
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     width: 10vh;
@@ -19,9 +22,39 @@ body {
     transform: scale(1.05);
 }
 
-#file1 { top: 15%; left: 10%; }
-#file2 { top: 55%; left: 80%; }
-#file3 { top: 15%; left: 75%; }
+#file1 {
+    top: 15%;
+    left: 10%;
+}
+
+#file2 {
+    top: 55%;
+    left: 80%;
+}
+
+#file3 {
+    top: 15%;
+    left: 75%;
+}
+
+#rule {
+    position: absolute;
+    top: 20%;
+    left: 35%;
+    width: 30%;
+    animation: fadeOut 8s ease-in forwards;
+    font-size: large;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
 
 .passwordBox {
     width: 30%;
@@ -94,9 +127,11 @@ input {
     content: "▌";
     animation: blink 1s infinite;
 }
-  
+
 @keyframes blink {
-    50% { opacity: 0; }
+    50% {
+        opacity: 0;
+    }
 }
 
 .error {
@@ -150,5 +185,3 @@ input {
     display: flex;
     align-items: center;
 }
-
-   

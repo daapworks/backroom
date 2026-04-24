@@ -32,6 +32,7 @@ const topBar = document.getElementById("topBar");
 let offsetX = 0;
 let offsetY = 0;
 let isDragging = false;
+let passwordCtr = 0;
 
 terminal.addEventListener("pointerdown", (e) => {
     isDragging = true;
@@ -60,12 +61,13 @@ const correctPasswords = ["apolitician", "politician" , "a politician"];
 
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        if (correctPasswords.includes(input.value.toLowerCase())) {
+        if (correctPasswords.includes(input.value.toLowerCase()) || passwordCtr >= 3) {
             window.location.href = "cabinet.html";
         } else {
             input.value = "";
             input.placeholder = "Wrong password";
             input.classList.add("error");
+            passwordCtr++;
         }
     }
 });
