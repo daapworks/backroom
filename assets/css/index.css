@@ -42,11 +42,20 @@ body {
     top: 20%;
     left: 35%;
     width: 30%;
-    animation: fadeOut 8s ease-in forwards;
+    animation: pulse-fade 8s ease-in-out infinite;;
     font-size: large;
 }
 
-@keyframes fadeOut {
+@keyframes pulse-fade {
+    0%, 100% {
+      opacity: 1; /* Fully visible at start and end */
+    }
+    50% {
+      opacity: 0; /* Fully invisible at the halfway point */
+    }
+  }
+
+/* @keyframes fadeOut {
     from {
         opacity: 1;
     }
@@ -54,7 +63,7 @@ body {
     to {
         opacity: 0;
     }
-}
+} */
 
 .passwordBox {
     width: 30%;
