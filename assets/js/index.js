@@ -66,7 +66,7 @@ input.addEventListener("keydown", (e) => {
         } else {
             input.value = "";
             input.placeholder = "Wrong password";
-            input.classList.add("error");
+            //input.classList.add("error");
             passwordCtr++;
         }
     }
