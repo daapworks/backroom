@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Head Lasers Scroll Scene</title>
   <link rel="stylesheet" href="https://use.typekit.net/rsd6dgx.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet">
   <style>
     #introReference {
       position: absolute;
@@ -1136,6 +1141,21 @@
         transform: translate(0, 0);
       }
     }
+
+    .ibm-plex-mono-regular {
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    .btn-label {
+      left: 171.5%;
+      position: absolute;
+      width: 30%;
+      top: 27%;
+      background-color: black;
+      color: white;
+    }
   </style>
 </head>
 
@@ -1212,6 +1232,7 @@
       </a>
       <a id="endBtn2Link" href="#">
         <img id="endBtn2Img" src="assets/img/gameover/read more button.png" alt="">
+        <span class="btn-label ibm-plex-mono-regular">PLAY AGAIN</span>
       </a>
     </div>
   </div>
