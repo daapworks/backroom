@@ -66,9 +66,9 @@
     }
 
     #intro {
-      --face-x: -106px;
-      --face-y: -30px;
-      --face-size: 470px;
+      --face-x: -175px;
+      --face-y: -58px;
+      --face-size: 781px;
       --face-slide-left: 120px;
       --face-slide-up: 30px;
     }
@@ -936,13 +936,17 @@
       opacity: 1;
     }
 
+    #textImage {
+      width: 30%;
+    }
+
     #endSeqButtons {
       position: absolute;
       left: 42%;
       bottom: 20%;
       transform: translateX(-50%);
       display: flex;
-      gap: 70%;
+      gap: 110%;
       z-index: 4;
       opacity: 0;
       pointer-events: none;
@@ -1190,7 +1194,7 @@
     <img id="endSeqImg2" class="endSeqImg" src="" alt="">
     <img id="endSeqFinal" class="endSeqImg" src="" alt="">
 
-    <img id="endSeqEdgeGlitch" src="assets/img/end/edge-glitch.png" alt="">
+    <img id="endSeqEdgeGlitch" src="assets/img/gameover/background1.png">
 
     <div id="endSeqText">
       <img id="textImage" src="assets/img/gameover/winScreen.svg" alt="">
@@ -1333,12 +1337,12 @@
 
     const GAME_OVER_BUTTONS = {
       button1Href: "index.html",
-      button2Href: "cabinet.html"
+      button2Href: "putin.html"
     };
 
     const WIN_BUTTONS = {
       button1Href: "index.html",
-      button2Href: "cabinet.html"
+      button2Href: "putin.html"
     };
 
     //hitFlashImg.src = HIT_FLASH_SRC;
@@ -1360,6 +1364,9 @@
     let targetY = window.innerHeight / 2;
     let targetVX = 120;
     let targetVY = 90;
+    let targetContactWarned = false;
+    let targetContactActive = false;
+    let warningTimeout = null;
 
     let lastTime = performance.now();
 
@@ -1449,6 +1456,7 @@
     async function loadLevel(index) {
       const level = LEVELS[index];
 
+
       levelLabel.textContent = level.label;
 
       // Hide target immediately while swapping assets
@@ -1458,6 +1466,8 @@
       targetDestroyed = false;
       hitSequenceRunning = false;
       levelEnded = false;
+      targetContactWarned = false;
+      targetContactActive = false;
 
       nextLevelBtn.classList.remove("show");
 
@@ -1493,6 +1503,18 @@
 
       // Make target drawable again
       target.style.opacity = "1";
+    }
+
+    function showTooCloseWarning() {
+      instructionText2.classList.remove("show");
+
+      instructionText.textContent = "YOU GOT TOO CLOSE TO YOUR TARGET. THEY MIGHT START TO SUSPECT YOU";
+      instructionText.classList.add("show");
+
+      clearTimeout(warningTimeout);
+      warningTimeout = setTimeout(() => {
+        instructionText.classList.remove("show");
+      }, 3500);
     }
 
     function showFinalOverlay() {
@@ -1634,12 +1656,12 @@
           instructionText.classList.remove("show");
           instructionText2.textContent = "DON'T GET TOO CLOSE";
           instructionText2.classList.add("show");
-        }, 4000);
+        }, 2000);
 
 
         setTimeout(() => {
           instructionText2.classList.remove("show");
-        }, 4000);
+        }, 2000);
 
         // start grace period (2 seconds)
         gracePeriodActive = true;
@@ -1707,8 +1729,21 @@
         const headRect = head.getBoundingClientRect();
         const targetRect = targetWrap.getBoundingClientRect();
 
-        if (!gracePeriodActive && rectsOverlap(headRect, targetRect)) {
-          triggerGameOver();
+        const touchingTarget = !gracePeriodActive && rectsOverlap(headRect, targetRect);
+
+        if (touchingTarget && !targetContactActive) {
+          targetContactActive = true;
+
+          if (!targetContactWarned) {
+            targetContactWarned = true;
+            showTooCloseWarning();
+          } else {
+            triggerGameOver();
+          }
+        }
+
+        if (!touchingTarget) {
+          targetContactActive = false;
         }
       }
 

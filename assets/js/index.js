@@ -13,7 +13,7 @@ secretFile.addEventListener('click', showPopup)
 //Typing effect
 //const text = "Initializing system...\nAccess granted.\nWelcome.";
 //const text = "If you are justice, please do not lie. What is the price for your blind eye?"
-const text = "I bend the truth with practiced grace, Yet earn belief in every face. The more untrue my tales may be, The more the world puts faith in me."
+const text = "I bend the truth with practiced grace, Yet earn belief in every face. The more untrue my tales may be, The more the world puts faith in me. I am a …"
 const hint = document.getElementById('hint');
 
 let i = 0;

@@ -63,8 +63,10 @@
       putinButton.classList.remove("show");
     }
 
+    const lift = (el.id === "file1") ? 650 : OPEN_LIFT;
+
     gsap.to(el, {
-      y: -OPEN_LIFT,
+      y: -lift,
       duration: 0.52,
       ease: "power3.out"
     });
@@ -104,7 +106,7 @@
 })();
 
 // Typing effect for title
-const text = "THE BACKROOM";
+const text = "WELCOME TO THE BACKROOM";
 const typedEl = document.getElementById("typed-text");
 const cursorEl = document.getElementById("cursor");
 
