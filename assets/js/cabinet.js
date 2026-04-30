@@ -45,6 +45,23 @@
     openEl = null;
   }
 
+  function getOpenLift(el) {
+    const w = window.innerWidth;
+  
+    if (w >= 2200) {
+      // large display / monitor
+      return el.id === "file1" ? 650 : 300;
+    }
+  
+    if (w >= 1400) {
+      // laptop / normal desktop
+      return el.id === "file1" ? 350 : 200;
+    }
+  
+    // smaller screens
+    return el.id === "file1" ? 450 : 220;
+  }
+
   function openFile(el) {
     // Close any currently open file
     if (openEl && openEl !== el) closeOpen();
@@ -63,7 +80,7 @@
       putinButton.classList.remove("show");
     }
 
-    const lift = (el.id === "file1") ? 650 : OPEN_LIFT;
+    const lift = getOpenLift(el);
 
     gsap.to(el, {
       y: -lift,

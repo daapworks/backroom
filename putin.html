@@ -383,8 +383,8 @@
     }
 
     #levelLabel {
-      left: 40%;
-      width: 20%;
+      left: 35%;
+      width: 30%;
       text-align: center;
     }
 
@@ -1269,6 +1269,52 @@
 
     //   syncFaceVars();
     // });
+
+    function applyFaceScaling() {
+      const introEl = document.getElementById("intro");
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // --- PRESETS ---
+      if (w >= 2200) {
+        // BIG MONITOR (your 2560x1640 screen)
+        introEl.style.setProperty("--face-x", "-175px");
+        introEl.style.setProperty("--face-y", "-58px");
+        introEl.style.setProperty("--face-size", "781px");
+        introEl.style.setProperty("--face-slide-left", "120px");
+        introEl.style.setProperty("--face-slide-up", "30px");
+
+        head.style.width = "300px";
+        endSeqButtons.style.gap = "110%";
+        textImage.style.width = "30%";
+        btnLabel.style.left = "171.5%";
+
+      } else if (w >= 1400) {
+        // LAPTOP (MacBook)
+        introEl.style.setProperty("--face-x", "-106px");
+        introEl.style.setProperty("--face-y", "-30px");
+        introEl.style.setProperty("--face-size", "470px");
+        introEl.style.setProperty("--face-slide-left", "120px");
+        introEl.style.setProperty("--face-slide-up", "30px");
+
+        head.style.width = "220px";
+        endSeqButtons.style.gap = "70%";
+        textImage.style.width = "586px";
+        btnLabel.style.left = "131.5%";
+
+      } else {
+        // SMALL SCREENS (fallback)
+        introEl.style.setProperty("--face-size", "520px");
+        introEl.style.setProperty("--face-x", "-110px");
+        introEl.style.setProperty("--face-y", "-40px");
+        introEl.style.setProperty("--face-slide-left", "80px");
+        introEl.style.setProperty("--face-slide-up", "20px");
+
+        head.style.width = "160px";
+        endSeqButtons.style.gap = "70%";
+      }
+    }
+
     const LEVELS = [
       {
         label: "LEVEL ONE",
@@ -1361,6 +1407,7 @@
     const endBtn2Img = document.getElementById("endBtn2Img");
     const endSeqText = document.getElementById("endSeqText");
     const textImage = document.getElementById("textImage");
+    const btnLabel = document.querySelector(".btn-label");
 
     const GAME_OVER_BUTTONS = {
       button1Href: "index.html",
@@ -2122,6 +2169,9 @@
     timerEl.textContent = formatTime(timeRemaining);
     requestAnimationFrame(tick);
     runIntroSequence();
+    applyFaceScaling();
+
+    window.addEventListener("resize", applyFaceScaling);  
   </script>
 </body>
 
