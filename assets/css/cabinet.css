@@ -192,6 +192,13 @@ body {
   z-index: 11;
 }
 
+/* Large/tall screens (like your 2560×1640 monitor) */
+@media (min-height: 1500px) {
+  #front {
+    top: 65%;
+  }
+}
+
 /* make files feel interactive */
 [id^="file"] { cursor: pointer; }
 

@@ -8,8 +8,8 @@
   const putinButton = document.getElementById("putinButton");
 
   // Tune these numbers to taste
-  const HOVER_LIFT = 14;     // px up on hover
-  const OPEN_LIFT = 300;    // px up on click (pull-out distance)
+  const HOVER_LIFT_PERCENT = 2;
+  const OPEN_LIFT_PERCENT = 25;
 
   // Track state
   let openEl = null;
@@ -21,7 +21,7 @@
     base.set(el, { z });
 
     // Ensure a known starting transform for GSAP (important)
-    gsap.set(el, { y: 0 });
+    gsap.set(el, { yPercent: 0 });
   });
 
   function closeOpen() {
@@ -31,12 +31,9 @@
     openEl.classList.remove("is-open");
 
     gsap.to(openEl, {
-      y: 0,
+      yPercent: 0,
       duration: 0.38,
-      ease: "power3.out",
-      // onComplete: () => {
-      //   openEl.style.zIndex = String(z);
-      // }
+      ease: "power3.out"
     });
 
     fileName.classList.remove("hide");
@@ -45,21 +42,8 @@
     openEl = null;
   }
 
-  function getOpenLift(el) {
-    const w = window.innerWidth;
-  
-    if (w >= 2200) {
-      // large display / monitor
-      return el.id === "file1" ? 650 : 300;
-    }
-  
-    if (w >= 1400) {
-      // laptop / normal desktop
-      return el.id === "file1" ? 350 : 200;
-    }
-  
-    // smaller screens
-    return el.id === "file1" ? 450 : 220;
+  function getOpenLiftPercent(el) {
+    return el.id === "file1" ? 45 : OPEN_LIFT_PERCENT;
   }
 
   function openFile(el) {
@@ -80,10 +64,10 @@
       putinButton.classList.remove("show");
     }
 
-    const lift = getOpenLift(el);
+    const liftPercent = getOpenLiftPercent(el);
 
     gsap.to(el, {
-      y: -lift,
+      yPercent: -liftPercent,
       duration: 0.52,
       ease: "power3.out"
     });
@@ -93,12 +77,12 @@
   fileEls.forEach(el => {
     el.addEventListener("mouseenter", () => {
       if (openEl === el) return; // ignore hover when open
-      gsap.to(el, { y: -HOVER_LIFT, duration: 0.2, ease: "power2.out" });
+      gsap.to(el, { yPercent: -HOVER_LIFT_PERCENT, duration: 0.2, ease: "power2.out" });
     });
 
     el.addEventListener("mouseleave", () => {
       if (openEl === el) return;
-      gsap.to(el, { y: 0, duration: 0.2, ease: "power2.out" });
+      gsap.to(el, { yPercent: 0, duration: 0.2, ease: "power2.out" });
     });
 
     el.addEventListener("click", (e) => {
